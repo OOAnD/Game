@@ -2,16 +2,15 @@ namespace SpaceBattle
 {
     public class StartCommand : ICommand
     {
-
         private IUtilCommandFactory _factory;
         private ICommand _command;
         private ICommandQueue _commandQueue;
 
         public StartCommand(IUtilCommandFactory factory, ICommand command, ICommandQueue commandQueue)
         {
-            _factory = factory;
-            _command = command;
-            _commandQueue = commandQueue;
+            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+            _command = command ?? throw new ArgumentNullException(nameof(command));
+            _commandQueue = commandQueue ?? throw new ArgumentNullException(nameof(commandQueue));
         }
 
         public void Execute()
