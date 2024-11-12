@@ -1,4 +1,4 @@
-using Moq;
+﻿using Moq;
 
 namespace SpaceBattle.Tests
 {
@@ -19,7 +19,6 @@ namespace SpaceBattle.Tests
             utilCommandFactory.Setup(u => u.CreateQueueSetter(commandBox.Object)).Returns(commandSetToQueue.Object);
             utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
             utilCommandFactory.Setup(u => u.CreateMacroCommand()).Returns(macroCommand.Object);
-
 
             var startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
 
@@ -76,7 +75,6 @@ namespace SpaceBattle.Tests
             var commandBox = new Mock<ICommandBox>();
             var utilCommandFactory = new Mock<IUtilCommandFactory>();
             var macroCommand = new Mock<IMacroCommand>();
-
 
             utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
             utilCommandFactory.Setup(u => u.CreateMacroCommand()).Returns(macroCommand.Object);
@@ -160,7 +158,6 @@ namespace SpaceBattle.Tests
             // Arrange
             var commandQueue = new Mock<ICommandQueue>();
             var utilCommandFactory = new Mock<IUtilCommandFactory>();
-
 
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() => new StartCommand(utilCommandFactory.Object, null, commandQueue.Object));

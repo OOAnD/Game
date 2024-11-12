@@ -1,7 +1,7 @@
-namespace SpaceBattle
+﻿namespace SpaceBattle
 {
     public interface IMacroCommand : ICommand, ICommandQueue
     {
-        
+
     }
 }

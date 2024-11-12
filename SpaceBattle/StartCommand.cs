@@ -1,10 +1,10 @@
-namespace SpaceBattle
+﻿namespace SpaceBattle
 {
     public class StartCommand : ICommand
     {
-        private IUtilCommandFactory _factory;
-        private ICommand _command;
-        private ICommandQueue _commandQueue;
+        private readonly IUtilCommandFactory _factory;
+        private readonly ICommand _command;
+        private readonly ICommandQueue _commandQueue;
 
         public StartCommand(IUtilCommandFactory factory, ICommand command, ICommandQueue commandQueue)
         {
