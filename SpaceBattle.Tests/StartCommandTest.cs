@@ -1,6 +1,4 @@
 ﻿using Moq;
-using Xunit;
-using System;
 
 namespace SpaceBattle.Tests
 {
@@ -75,7 +73,8 @@ namespace SpaceBattle.Tests
             startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
 
             // Act & Assert
-            Assert.Throws<Exception>(() => {
+            Assert.Throws<Exception>(() =>
+            {
                 startCommand.Execute();
                 var receivedStopCommand = startCommand.StopCommand;
             });

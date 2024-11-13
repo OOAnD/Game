@@ -14,7 +14,6 @@
             _commandQueue = commandQueue ?? throw new ArgumentNullException(nameof(commandQueue));
         }
 
-
         public void Execute()
         {
             var commandBox = _factory.CreateCommandBox();
