@@ -52,7 +52,6 @@ namespace SpaceBattle.Tests
         {
             // Arrange
             SetupMocks();
-            
 
             // Act
             startCommand.Execute();
@@ -153,6 +152,26 @@ namespace SpaceBattle.Tests
 
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() => new StartCommand(utilCommandFactory.Object, null, commandQueue.Object));
+        }
+
+        [Fact]
+        public void Execute_ShouldThrowArgumentNullException_WhenUtilCommandFactoryIsNull()
+        {
+            // Arrange
+            SetupMocks();
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => new StartCommand(null, anyCommand.Object, commandQueue.Object));
+        }
+
+        [Fact]
+        public void Execute_ShouldThrowArgumentNullException_WhenCommandQueueIsNull()
+        {
+            // Arrange
+            SetupMocks();
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => new StartCommand(utilCommandFactory.Object, anyCommand.Object, null));
         }
     }
 }
