@@ -33,6 +33,36 @@ namespace SpaceBattle.Tests
         }
 
         [Fact]
+        public void GetStopCommand_ShouldReturnCorrectStopCommand()
+        {
+            // Arrange
+            var anyCommand = new Mock<ICommand>();
+            var commandQueue = new Mock<ICommandQueue>();
+            var commandBox = new Mock<ICommandBox>();
+            var macroCommand = new Mock<IMacroCommand>();
+            var commandSetToQueue = new Mock<ICommand>();
+            var emptyCommand = new Mock<ICommand>();
+            var stopCommand = new Mock<ICommand>();
+
+            var utilCommandFactory = new Mock<IUtilCommandFactory>();
+
+            utilCommandFactory.Setup(u => u.CreateQueueSetter(commandBox.Object)).Returns(commandSetToQueue.Object);
+            utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
+            utilCommandFactory.Setup(u => u.CreateMacroCommand()).Returns(macroCommand.Object);
+            utilCommandFactory.Setup(u => u.CreateStopCommand(commandBox.Object)).Returns(stopCommand.Object);
+
+            var startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
+
+            // Act
+            startCommand.Execute();
+
+            var recivedStopCommand = startCommand.StopCommand;
+
+            //Assert
+            utilCommandFactory.Verify(ucf => ucf.CreateStopCommand(commandBox.Object));
+        }
+
+        [Fact]
         public void Execute_ShouldThrowException_WhenCommandBoxCreationFails()
         {
             // Arrange
