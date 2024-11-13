@@ -1,31 +1,45 @@
 ﻿using Moq;
+using Xunit;
+using System;
 
 namespace SpaceBattle.Tests
 {
     public class StartCommandTest
     {
-        [Fact]
-        public void Execute_ShouldCorrectBuildCommandAndPutIntoQueue()
-        {
-            // Arrange
-            var anyCommand = new Mock<ICommand>();
-            var commandQueue = new Mock<ICommandQueue>();
-            var commandBox = new Mock<ICommandBox>();
-            var macroCommand = new Mock<IMacroCommand>();
-            var commandSetToQueue = new Mock<ICommand>();
+        private Mock<ICommand> anyCommand;
+        private Mock<ICommandQueue> commandQueue;
+        private Mock<ICommandBox> commandBox;
+        private Mock<IMacroCommand> macroCommand;
+        private Mock<ICommand> commandSetToQueue;
+        private Mock<IUtilCommandFactory> utilCommandFactory;
+        private StartCommand startCommand;
 
-            var utilCommandFactory = new Mock<IUtilCommandFactory>();
+        private void SetupMocks()
+        {
+            anyCommand = new Mock<ICommand>();
+            commandQueue = new Mock<ICommandQueue>();
+            commandBox = new Mock<ICommandBox>();
+            macroCommand = new Mock<IMacroCommand>();
+            commandSetToQueue = new Mock<ICommand>();
+            utilCommandFactory = new Mock<IUtilCommandFactory>();
 
             utilCommandFactory.Setup(u => u.CreateQueueSetter(commandBox.Object)).Returns(commandSetToQueue.Object);
             utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
             utilCommandFactory.Setup(u => u.CreateMacroCommand()).Returns(macroCommand.Object);
 
-            var startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
+            startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
+        }
+
+        [Fact]
+        public void Execute_ShouldCorrectBuildCommandAndPutIntoQueue()
+        {
+            // Arrange
+            SetupMocks();
 
             // Act
             startCommand.Execute();
 
-            //Assert
+            // Assert
             macroCommand.Verify(cwns => cwns.Put(commandSetToQueue.Object));
             macroCommand.Verify(cwns => cwns.Put(anyCommand.Object));
             commandBox.Verify(cb => cb.Set(macroCommand.Object));
@@ -36,43 +50,48 @@ namespace SpaceBattle.Tests
         public void GetStopCommand_ShouldReturnCorrectStopCommand()
         {
             // Arrange
-            var anyCommand = new Mock<ICommand>();
-            var commandQueue = new Mock<ICommandQueue>();
-            var commandBox = new Mock<ICommandBox>();
-            var macroCommand = new Mock<IMacroCommand>();
-            var commandSetToQueue = new Mock<ICommand>();
-            var emptyCommand = new Mock<ICommand>();
+            SetupMocks();
             var stopCommand = new Mock<ICommand>();
-
-            var utilCommandFactory = new Mock<IUtilCommandFactory>();
-
-            utilCommandFactory.Setup(u => u.CreateQueueSetter(commandBox.Object)).Returns(commandSetToQueue.Object);
-            utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
-            utilCommandFactory.Setup(u => u.CreateMacroCommand()).Returns(macroCommand.Object);
             utilCommandFactory.Setup(u => u.CreateStopCommand(commandBox.Object)).Returns(stopCommand.Object);
-
-            var startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
 
             // Act
             startCommand.Execute();
+            var receivedStopCommand = startCommand.StopCommand;
 
-            var recivedStopCommand = startCommand.StopCommand;
-
-            //Assert
+            // Assert
             utilCommandFactory.Verify(ucf => ucf.CreateStopCommand(commandBox.Object));
+        }
+
+        [Fact]
+        public void Execute_ShouldThrowException_WhenStopCommandCreationFails()
+        {
+            // Arrange
+            anyCommand = new Mock<ICommand>();
+            commandQueue = new Mock<ICommandQueue>();
+            utilCommandFactory = new Mock<IUtilCommandFactory>();
+
+            utilCommandFactory.Setup(u => u.CreateStopCommand(It.IsAny<ICommandBox>())).Throws(new Exception("StopCommand creation failed"));
+
+            startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
+
+            // Act & Assert
+            Assert.Throws<Exception>(() => {
+                startCommand.Execute();
+                var receivedStopCommand = startCommand.StopCommand;
+            });
         }
 
         [Fact]
         public void Execute_ShouldThrowException_WhenCommandBoxCreationFails()
         {
             // Arrange
-            var anyCommand = new Mock<ICommand>();
-            var commandQueue = new Mock<ICommandQueue>();
-            var utilCommandFactory = new Mock<IUtilCommandFactory>();
+            anyCommand = new Mock<ICommand>();
+            commandQueue = new Mock<ICommandQueue>();
+            utilCommandFactory = new Mock<IUtilCommandFactory>();
 
             utilCommandFactory.Setup(u => u.CreateCommandBox()).Throws(new Exception("CommandBox creation failed"));
 
-            var startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
+            startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
 
             // Act & Assert
             Assert.Throws<Exception>(() => startCommand.Execute());
@@ -82,15 +101,8 @@ namespace SpaceBattle.Tests
         public void Execute_ShouldThrowException_WhenMacroCommandCreationFails()
         {
             // Arrange
-            var anyCommand = new Mock<ICommand>();
-            var commandQueue = new Mock<ICommandQueue>();
-            var commandBox = new Mock<ICommandBox>();
-            var utilCommandFactory = new Mock<IUtilCommandFactory>();
-
-            utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
+            SetupMocks();
             utilCommandFactory.Setup(u => u.CreateMacroCommand()).Throws(new Exception("MacroCommand creation failed"));
-
-            var startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
 
             // Act & Assert
             Assert.Throws<Exception>(() => startCommand.Execute());
@@ -100,17 +112,8 @@ namespace SpaceBattle.Tests
         public void Execute_ShouldThrowException_WhenQueueSetterCreationFails()
         {
             // Arrange
-            var anyCommand = new Mock<ICommand>();
-            var commandQueue = new Mock<ICommandQueue>();
-            var commandBox = new Mock<ICommandBox>();
-            var utilCommandFactory = new Mock<IUtilCommandFactory>();
-            var macroCommand = new Mock<IMacroCommand>();
-
-            utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
-            utilCommandFactory.Setup(u => u.CreateMacroCommand()).Returns(macroCommand.Object);
-            utilCommandFactory.Setup(u => u.CreateMacroCommand()).Throws(new Exception("QueueSetter creation failed"));
-
-            var startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
+            SetupMocks();
+            utilCommandFactory.Setup(u => u.CreateQueueSetter(commandBox.Object)).Throws(new Exception("QueueSetter creation failed"));
 
             // Act & Assert
             Assert.Throws<Exception>(() => startCommand.Execute());
@@ -120,17 +123,8 @@ namespace SpaceBattle.Tests
         public void Execute_ShouldThrowException_WhenAddingCommandToMacroCommandFails()
         {
             // Arrange
-            var anyCommand = new Mock<ICommand>();
-            var commandQueue = new Mock<ICommandQueue>();
-            var commandBox = new Mock<ICommandBox>();
-            var macroCommand = new Mock<IMacroCommand>();
-            var utilCommandFactory = new Mock<IUtilCommandFactory>();
-
-            utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
-            utilCommandFactory.Setup(u => u.CreateMacroCommand()).Returns(macroCommand.Object);
+            SetupMocks();
             macroCommand.Setup(m => m.Put(It.IsAny<ICommand>())).Throws(new Exception("Failed to add command"));
-
-            var startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
 
             // Act & Assert
             Assert.Throws<Exception>(() => startCommand.Execute());
@@ -140,20 +134,8 @@ namespace SpaceBattle.Tests
         public void Execute_ShouldThrowException_WhenPuttingCommandBoxIntoQueueFails()
         {
             // Arrange
-            var anyCommand = new Mock<ICommand>();
-            var commandQueue = new Mock<ICommandQueue>();
-            var commandBox = new Mock<ICommandBox>();
-            var macroCommand = new Mock<IMacroCommand>();
-            var commandSetToQueue = new Mock<ICommand>();
-
-            var utilCommandFactory = new Mock<IUtilCommandFactory>();
-
-            utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
-            utilCommandFactory.Setup(u => u.CreateMacroCommand()).Returns(macroCommand.Object);
-            utilCommandFactory.Setup(u => u.CreateQueueSetter(commandBox.Object)).Returns(commandSetToQueue.Object);
+            SetupMocks();
             commandQueue.Setup(cq => cq.Put(commandBox.Object)).Throws(new Exception("Failed to put CommandBox into queue"));
-
-            var startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
 
             // Act & Assert
             Assert.Throws<Exception>(() => startCommand.Execute());
@@ -163,20 +145,8 @@ namespace SpaceBattle.Tests
         public void Execute_ShouldThrowException_WhenSettingMacroCommandIntoCommandBoxFails()
         {
             // Arrange
-            var anyCommand = new Mock<ICommand>();
-            var commandQueue = new Mock<ICommandQueue>();
-            var commandBox = new Mock<ICommandBox>();
-            var macroCommand = new Mock<IMacroCommand>();
-            var commandSetToQueue = new Mock<ICommand>();
-
-            var utilCommandFactory = new Mock<IUtilCommandFactory>();
-
-            utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
-            utilCommandFactory.Setup(u => u.CreateMacroCommand()).Returns(macroCommand.Object);
-            utilCommandFactory.Setup(u => u.CreateQueueSetter(commandBox.Object)).Returns(commandSetToQueue.Object);
+            SetupMocks();
             commandBox.Setup(cb => cb.Set(macroCommand.Object)).Throws(new Exception("Failed to set MacroCommand into CommandBox"));
-
-            var startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
 
             // Act & Assert
             Assert.Throws<Exception>(() => startCommand.Execute());
@@ -186,8 +156,8 @@ namespace SpaceBattle.Tests
         public void Execute_ShouldThrowArgumentNullException_WhenCommandIsNull()
         {
             // Arrange
-            var commandQueue = new Mock<ICommandQueue>();
-            var utilCommandFactory = new Mock<IUtilCommandFactory>();
+            commandQueue = new Mock<ICommandQueue>();
+            utilCommandFactory = new Mock<IUtilCommandFactory>();
 
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() => new StartCommand(utilCommandFactory.Object, null, commandQueue.Object));
