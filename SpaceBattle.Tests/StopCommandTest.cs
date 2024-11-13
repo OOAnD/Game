@@ -23,5 +23,15 @@ namespace SpaceBattle.Test
             // Assert
             cancelable.Verify(c => c.Set(emptyCommand.Object), Times.Once);
         }
+
+        [Fact]
+        public void Constructor_NullCommandBox_ThrowsArgumentNullException()
+        {
+            // Arrange
+            var emptyCommandFactory = new Mock<IEmptyCommandFactory>();
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => new StopCommand(null, emptyCommandFactory.Object));
+        }
     }
 }

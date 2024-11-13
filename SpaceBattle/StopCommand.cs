@@ -8,7 +8,7 @@
 
         public StopCommand(ICommandBox cancellableCommand, IEmptyCommandFactory emptyCommandFactory)
         {
-            _cancellableCommand = cancellableCommand;
+            _cancellableCommand = cancellableCommand ?? throw new ArgumentNullException(nameof(cancellableCommand));
             _emptyCommandFactory = emptyCommandFactory;
         }
 
