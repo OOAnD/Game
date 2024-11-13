@@ -14,7 +14,7 @@
 
         public void Execute()
         {
-            var emptyCommand = _emptyCommandFactory.CreateEmptyCommand();
+            var emptyCommand = _emptyCommandFactory.CreateEmptyCommand() ?? throw new InvalidOperationException();
             _cancellableCommand.Set(emptyCommand);
         }
     }
