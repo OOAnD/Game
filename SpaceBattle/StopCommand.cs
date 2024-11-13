@@ -9,7 +9,7 @@
         public StopCommand(ICommandBox cancellableCommand, IEmptyCommandFactory emptyCommandFactory)
         {
             _cancellableCommand = cancellableCommand ?? throw new ArgumentNullException(nameof(cancellableCommand));
-            _emptyCommandFactory = emptyCommandFactory;
+            _emptyCommandFactory = emptyCommandFactory ?? throw new ArgumentNullException(nameof(emptyCommandFactory));
         }
 
         public void Execute()
