@@ -43,5 +43,19 @@ namespace SpaceBattle.Tests
             Assert.Throws<ArgumentNullException>(() => new StopCommand(cancelable.Object, null));
         }
 
+        [Fact]
+        public void Execute_ShouldThrowException_WhenEmptyCommandFactoryReturnsNull()
+        {
+            // Arrange
+            var cancelable = new Mock<ICommandBox>();
+            var emptyCommandFactory = new Mock<IEmptyCommandFactory>();
+
+            emptyCommandFactory.Setup(f => f.CreateEmptyCommand()).Returns<ICommand>(null);
+
+            var stopCommand = new StopCommand(cancelable.Object, emptyCommandFactory.Object);
+
+            // Act & Assert
+            Assert.Throws<InvalidOperationException>(() => stopCommand.Execute());
+        }
     }
 }
