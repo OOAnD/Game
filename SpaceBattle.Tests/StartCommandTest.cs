@@ -11,6 +11,7 @@ namespace SpaceBattle.Tests
         private Mock<ICommand> commandSetToQueue;
         private Mock<IUtilCommandFactory> utilCommandFactory;
         private StartCommand startCommand;
+        private Mock<ICommand> stopCommand;
 
         private void SetupMocks()
         {
@@ -20,7 +21,9 @@ namespace SpaceBattle.Tests
             macroCommand = new Mock<IMacroCommand>();
             commandSetToQueue = new Mock<ICommand>();
             utilCommandFactory = new Mock<IUtilCommandFactory>();
+            stopCommand = new Mock<ICommand>();
 
+            utilCommandFactory.Setup(u => u.CreateStopCommand(commandBox.Object)).Returns(stopCommand.Object);
             utilCommandFactory.Setup(u => u.CreateQueueSetter(commandBox.Object)).Returns(commandSetToQueue.Object);
             utilCommandFactory.Setup(u => u.CreateCommandBox()).Returns(commandBox.Object);
             utilCommandFactory.Setup(u => u.CreateMacroCommand()).Returns(macroCommand.Object);
@@ -49,8 +52,7 @@ namespace SpaceBattle.Tests
         {
             // Arrange
             SetupMocks();
-            var stopCommand = new Mock<ICommand>();
-            utilCommandFactory.Setup(u => u.CreateStopCommand(commandBox.Object)).Returns(stopCommand.Object);
+            
 
             // Act
             startCommand.Execute();
@@ -64,9 +66,7 @@ namespace SpaceBattle.Tests
         public void Execute_ShouldThrowException_WhenStopCommandCreationFails()
         {
             // Arrange
-            anyCommand = new Mock<ICommand>();
-            commandQueue = new Mock<ICommandQueue>();
-            utilCommandFactory = new Mock<IUtilCommandFactory>();
+            SetupMocks();
 
             utilCommandFactory.Setup(u => u.CreateStopCommand(It.IsAny<ICommandBox>())).Throws(new Exception("StopCommand creation failed"));
 
@@ -79,18 +79,12 @@ namespace SpaceBattle.Tests
                 var receivedStopCommand = startCommand.StopCommand;
             });
         }
-
         [Fact]
         public void Execute_ShouldThrowException_WhenCommandBoxCreationFails()
         {
             // Arrange
-            anyCommand = new Mock<ICommand>();
-            commandQueue = new Mock<ICommandQueue>();
-            utilCommandFactory = new Mock<IUtilCommandFactory>();
-
+            SetupMocks();
             utilCommandFactory.Setup(u => u.CreateCommandBox()).Throws(new Exception("CommandBox creation failed"));
-
-            startCommand = new StartCommand(utilCommandFactory.Object, anyCommand.Object, commandQueue.Object);
 
             // Act & Assert
             Assert.Throws<Exception>(() => startCommand.Execute());
@@ -155,8 +149,7 @@ namespace SpaceBattle.Tests
         public void Execute_ShouldThrowArgumentNullException_WhenCommandIsNull()
         {
             // Arrange
-            commandQueue = new Mock<ICommandQueue>();
-            utilCommandFactory = new Mock<IUtilCommandFactory>();
+            SetupMocks();
 
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() => new StartCommand(utilCommandFactory.Object, null, commandQueue.Object));
