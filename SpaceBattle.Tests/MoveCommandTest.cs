@@ -71,5 +71,12 @@ namespace SpaceBattle.Tests
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => moveCommand.Execute());
         }
+
+        [Fact]
+        public void Define_ShouldThrowExeption_WhenMovingObjectsNull()
+        {
+            // Arrange & Act & Assert
+            Assert.Throws<ArgumentNullException>(() => new MoveCommand(null));
+        }
     }
 }
