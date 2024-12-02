@@ -36,11 +36,20 @@
         }
         private static int GCD(int a, int b)
         {
-            return Enumerable.Range(0, int.MaxValue)
-                             .Select(i => new { A = a, B = b })
-                             .TakeWhile(pair => pair.A != 0 && pair.B != 0)
-                             .Aggregate((a, b) => new { A = a.A > a.B ? a.A % a.B : a.A, B = a.B > a.A ? a.B % a.A : a.B })
-                             .A | (a | b);
+            
+            a = Math.Abs(a);
+            b = Math.Abs(b);
+            
+            
+            while (b != 0)
+            {
+                var temp = b;
+                b = a % b; 
+                a = temp;  
+            }
+            
+            return a; 
         }
+
     }
 }
