@@ -1,8 +1,8 @@
-namespace SpaceBattle{
-    public interface IRotating{
-        Angle GetAngle();
-        Angle GetVelocity();
-        void SetAngle(Angle newAngle);
+﻿namespace SpaceBattle
+{
+    public interface IRotating
+    {
+        Angle Angle { get; set; }
+        Angle Velocity { get; }
     }
-
 }
