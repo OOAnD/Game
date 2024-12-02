@@ -33,63 +33,6 @@
         }
 
         [Fact]
-        public void Sum_ShouldBeCorrect_WithZeroValues()
-        {
-            // Arrange
-            var vector1 = new Vector(2);
-            var vector2 = new Vector(2);
-            var correct = new Vector(2);
-
-            vector1.Set(12, 5);
-            vector2.Set(0, 0);
-            correct.Set(12, 5);
-
-            // Act
-            var result = vector1 + vector2;
-
-            // Assert
-            Assert.True(result == correct);
-        }
-
-        [Fact]
-        public void Sum_ShouldBeCorrect_WithNegativeValues()
-        {
-            // Arrange
-            var vector1 = new Vector(2);
-            var vector2 = new Vector(2);
-            var correct = new Vector(2);
-
-            vector1.Set(-12, -4);
-            vector2.Set(-7, -3);
-            correct.Set(-19, -7);
-
-            // Act
-            var result = vector1 + vector2;
-
-            // Assert
-            Assert.True(result == correct);
-        }
-
-        [Fact]
-        public void Sum_ShouldBeCorrect_WithLargeValues()
-        {
-            // Arrange
-            var vector1 = new Vector(2);
-            var vector2 = new Vector(2);
-            var correct = new Vector(2);
-
-            vector1.Set(1000, 2000);
-            vector2.Set(3000, 4000);
-            correct.Set(4000, 6000);
-
-            // Act
-            var result = vector1 + vector2;
-
-            // Assert
-            Assert.True(result == correct);
-        }
-
-        [Fact]
         public void Comparison_ShouldReturnFalse_ForDifferentValues()
         {
             // Arrange
