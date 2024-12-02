@@ -11,7 +11,6 @@
 
         public void Execute()
         {
-            _ = _movingObject.Position;
             var velocity = _movingObject.Velocity;
             _movingObject.Position += velocity;
         }
