@@ -1,4 +1,4 @@
-﻿namespace SpaceBattle
+﻿namespace SpaceBattle.Tests
 {
     public class VectorTest
     {
