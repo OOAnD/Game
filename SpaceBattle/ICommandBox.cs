@@ -1,8 +1,7 @@
 ﻿namespace SpaceBattle
 {
-    public interface ICommandBox
+    public interface ICommandBox : ICommand
     {
         void Set(ICommand command);
-        ICommand GetCurrentCommand();
     }
 }
