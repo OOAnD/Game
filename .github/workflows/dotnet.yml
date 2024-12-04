@@ -65,7 +65,7 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
 
       - name: Find Uncovered Lines
         run: |
