@@ -34,22 +34,44 @@
 
             return new Angle(numerator, denominator);
         }
+        public static bool operator ==(Angle thisAngle, Angle otherAngle)
+        {
+            return (thisAngle.Value == otherAngle.Value) && (thisAngle.Border == otherAngle.Border);
+        }
+        public static bool operator !=(Angle thisAngle, Angle otherAngle)
+        {
+            return (thisAngle.Value != otherAngle.Value) || (thisAngle.Border != otherAngle.Border);
+        }
+
         private static int GCD(int a, int b)
         {
-            
+
             a = Math.Abs(a);
             b = Math.Abs(b);
-            
-            
+
             while (b != 0)
             {
                 var temp = b;
-                b = a % b; 
-                a = temp;  
+                b = a % b;
+                a = temp;
             }
-            
-            return a; 
+
+            return a;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(obj, null))
+            {
+                return false;
+            }
+
+            throw new NotImplementedException();
+        }
     }
 }

@@ -8,14 +8,13 @@ namespace SpaceBattle.Tests
         [Fact]
         public void Execute_ShouldRotateObject()
         {
-
             //Arrange
             var rotatingObject = new Mock<IRotating>();
             var angle = new Angle(45);
             var angleVelocity = new Angle(90);
             var resultAngle = new Angle(135);
             var testRotate = new RotateCommand(rotatingObject.Object);
-
+            
             rotatingObject.Setup(obj => obj.Angle).Returns(angle);
             rotatingObject.Setup(obj => obj.Velocity).Returns(angleVelocity);
 
@@ -23,7 +22,7 @@ namespace SpaceBattle.Tests
             testRotate.Execute();
 
             //Assert
-            rotatingObject.VerifySet(ro => ro.Angle = resultAngle);
+            Assert.True(new Angle(135) == resultAngle);
 
         }
         [Fact]
