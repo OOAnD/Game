@@ -6,4 +6,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="ioccore">
+      <HintPath>../Common/core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="iocscope">
+      <HintPath>../Common/scopes.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
