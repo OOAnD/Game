@@ -10,6 +10,13 @@
             Assert.True(testAngle.Numerator < Angle.Denominator);
         }
         [Fact]
+        public void Set_ShouldBeCorrect()
+        {
+            var testAngle = new Angle(0);
+            testAngle.Numerator = 143;
+            Assert.True(testAngle.Numerator < Angle.Denominator);
+        }
+        [Fact]
         public void Define_NumeratorShouldBePositive()
         {
             var testAngle = new Angle(-143);
