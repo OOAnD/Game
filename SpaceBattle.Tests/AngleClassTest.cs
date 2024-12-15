@@ -39,6 +39,15 @@
             Assert.True(testTrue);
         }
         [Fact]
+        public void Comparison_ShouldThrowException_WhenEqualsUsedWrong()
+        {
+            var testAngle1 = new Angle(15);
+            var testAngle2 = new object();
+
+            Assert.ThrowsAny<Exception>(() => Equals(testAngle1,testAngle2));
+
+        }
+        [Fact]
         public void Comparison_ShouldReturnTrue_ForSameValues_ThroughMethod()
         {
             var testAngle1 = new Angle(15);
