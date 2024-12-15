@@ -2,81 +2,51 @@
 {
     public class Angle
     {
-        public int _value;
-        public int _border;
-        public int Value
+        public int _numerator;
+        public static int _denominator = 8;
+        public int Numerator
         {
-            get => _value;
-            set => _value = value;
+            get => _numerator;
+            set => _numerator = value; 
         }
-        public int Border => _border;
-        public Angle(int value, int border = 360)
+        public static int Denominator => _denominator;
+        public Angle(int numerator)
         {
-            if (border < 0)
-            {
-                throw new Exception("Wrong, can not be zero or less");
-            }
-            else
-            {
-                _border = border;
-            }
-
-            _value = ((value % _border) + _border) % _border;
+            _numerator = ((numerator % _denominator) + _denominator) % _denominator;
         }
-        public static Angle operator +(Angle angle, Angle velocity)
+        public static Angle operator +(Angle thisAngle, Angle otherAngle)
         {
-            var denominator = angle.Border * velocity.Border; // тут надо по другому
-            var numerator = angle.Value * velocity.Border + angle.Border * velocity.Value;
-
-            var gcd = GCD(denominator, numerator);
-            numerator /= gcd;
-            denominator /= gcd;
-
-            return new Angle(numerator, denominator);
+            return new Angle(thisAngle.Numerator + otherAngle.Numerator);
+        }
+        public static Angle operator -(Angle thisAngle, Angle otherAngle)
+        {
+            return new Angle(thisAngle.Numerator - otherAngle.Numerator);
         }
         public static bool operator ==(Angle thisAngle, Angle otherAngle)
         {
-            return (thisAngle.Value == otherAngle.Value) && (thisAngle.Border == otherAngle.Border);
+            return thisAngle.Numerator == otherAngle.Numerator;
         }
         public static bool operator !=(Angle thisAngle, Angle otherAngle)
         {
-            return (thisAngle.Value != otherAngle.Value) || (thisAngle.Border != otherAngle.Border);
+            return thisAngle.Numerator != otherAngle.Numerator;
         }
-
-        private static int GCD(int a, int b)
-        {
-
-            a = Math.Abs(a);
-            b = Math.Abs(b);
-
-            while (b != 0)
-            {
-                var temp = b;
-                b = a % b;
-                a = temp;
-            }
-
-            return a;
-        }
-
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (ReferenceEquals(obj, null))
+            if ((obj is null) || Numerator != ((Angle) obj).Numerator)
             {
                 return false;
             }
 
+            if (Numerator == ((Angle) obj).Numerator)
+            {
+                return true;
+            }
+
             throw new NotImplementedException();
         }
-
         public override int GetHashCode()
         {
-            throw new NotImplementedException();
+            return HashCode.Combine(_numerator, _denominator);
         }
     }
 }
