@@ -7,7 +7,7 @@
         public int Numerator
         {
             get => _numerator;
-            set => _numerator = value; 
+            set => _numerator = value;
         }
         public static int Denominator => _denominator;
         public Angle(int numerator)
@@ -32,12 +32,12 @@
         }
         public override bool Equals(object obj)
         {
-            if ((obj is null) || Numerator != ((Angle) obj).Numerator)
+            if ((obj is null) || Numerator != ((Angle)obj).Numerator)
             {
                 return false;
             }
 
-            if (Numerator == ((Angle) obj).Numerator)
+            if (Numerator == ((Angle)obj).Numerator)
             {
                 return true;
             }

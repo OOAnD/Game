@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using Moq;
+﻿using Moq;
 
 namespace SpaceBattle.Tests
 {
@@ -32,7 +31,7 @@ namespace SpaceBattle.Tests
             var testRotate = new RotateCommand(rotatingObject.Object);
             var angleVelocity = new Angle(45);
             rotatingObject.Setup(obj => obj.Velocity).Returns(angleVelocity);
-            
+
             Assert.ThrowsAny<Exception>(testRotate.Execute);
         }
         [Fact]
@@ -42,7 +41,7 @@ namespace SpaceBattle.Tests
             var testRotate = new RotateCommand(rotatingObject.Object);
             var angle = new Angle(45);
             rotatingObject.Setup(obj => obj.Angle).Returns(angle);
-            
+
             Assert.ThrowsAny<Exception>(testRotate.Execute);
         }
         [Fact]
@@ -50,7 +49,7 @@ namespace SpaceBattle.Tests
         {
             var rotatingObject = new Mock<IRotating>();
             var testRotate = new RotateCommand(rotatingObject.Object);
-            
+
             rotatingObject.SetupGet(obj => obj.Angle).Throws(new Exception());
 
             Assert.Throws<Exception>(testRotate.Execute);

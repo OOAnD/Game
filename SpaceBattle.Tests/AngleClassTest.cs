@@ -1,83 +1,92 @@
-using Moq;
-
-namespace SpaceBattle.Tests{
-    public class AngleClassTest{
+﻿namespace SpaceBattle.Tests
+{
+    public class AngleClassTest
+    {
         [Fact]
-        public void Define_NumeratorShouldBeLessThanDenominator(){
+        public void Define_NumeratorShouldBeLessThanDenominator()
+        {
             var testAngle = new Angle(143);
 
             Assert.True(testAngle.Numerator < Angle.Denominator);
         }
         [Fact]
-        public void Define_NumeratorShouldBePositive(){
+        public void Define_NumeratorShouldBePositive()
+        {
             var testAngle = new Angle(-143);
 
-            Assert.True(testAngle.Numerator >= 0); 
+            Assert.True(testAngle.Numerator >= 0);
         }
         [Fact]
-        public void Sum_NumeratorShouldBeEqualToSumWithinZeroToDenominator(){
+        public void Sum_NumeratorShouldBeEqualToSumWithinZeroToDenominator()
+        {
             var testAngle1 = new Angle(5);
             var testAngle2 = new Angle(7);
 
             var resultAngle = testAngle1 + testAngle2;
             var testTrue = resultAngle == new Angle(4);
 
-            Assert.True(testTrue); 
+            Assert.True(testTrue);
         }
         [Fact]
-        public void Dif_NumeratorShouldBeEqualToDifWithinZeroToDenominator(){
+        public void Dif_NumeratorShouldBeEqualToDifWithinZeroToDenominator()
+        {
             var testAngle1 = new Angle(5);
             var testAngle2 = new Angle(7);
-            
+
             var resultAngle = testAngle1 - testAngle2;
             var testTrue = resultAngle == new Angle(6);
 
-            Assert.True(testTrue);  
+            Assert.True(testTrue);
         }
         [Fact]
-        public void Comparison_ShouldReturnTrue_ForSameValues_ThroughMethod(){
+        public void Comparison_ShouldReturnTrue_ForSameValues_ThroughMethod()
+        {
             var testAngle1 = new Angle(15);
             var testAngle2 = new Angle(23);
-            
-            var testTrue = Equals(testAngle1,testAngle2);
 
-            Assert.True(testTrue);  
+            var testTrue = Equals(testAngle1, testAngle2);
+
+            Assert.True(testTrue);
         }
         [Fact]
-        public void Comparison_ShouldReturnTrue_ForSameValues_ThroughOperator(){
+        public void Comparison_ShouldReturnTrue_ForSameValues_ThroughOperator()
+        {
             var testAngle1 = new Angle(15);
             var testAngle2 = new Angle(23);
-            
+
             var testTrue = testAngle1 == testAngle2;
 
-            Assert.True(testTrue);  
+            Assert.True(testTrue);
         }
         [Fact]
-        public void Comparison_ShouldReturnFalse_ForDifferentValues_ThroughMethod(){
+        public void Comparison_ShouldReturnFalse_ForDifferentValues_ThroughMethod()
+        {
             var testAngle1 = new Angle(1);
             var testAngle2 = new Angle(2);
-            
-            var testTrue = Equals(testAngle1,testAngle2);
 
-            Assert.False(testTrue);  
+            var testTrue = Equals(testAngle1, testAngle2);
+
+            Assert.False(testTrue);
         }
         [Fact]
-        public void Comparison_ShouldReturnTrue_ForDifferentValues_ThroughOperator(){
+        public void Comparison_ShouldReturnTrue_ForDifferentValues_ThroughOperator()
+        {
             var testAngle1 = new Angle(1);
             var testAngle2 = new Angle(2);
-            
+
             var testTrue = testAngle1 != testAngle2;
 
-            Assert.True(testTrue);  
+            Assert.True(testTrue);
         }
         [Fact]
-        public void GetHashCode_ShouldReturnHashCode(){
+        public void GetHashCode_ShouldReturnHashCode()
+        {
             var testAngle = new Angle(1);
             var testAngleHashCode = testAngle.GetHashCode();
 
             var testTrue = testAngleHashCode is int;
 
-            Assert.True(testTrue);  
+            Assert.True(testTrue);
         }
     }
 }
