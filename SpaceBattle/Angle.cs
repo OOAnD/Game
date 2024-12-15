@@ -7,7 +7,7 @@
         public int Numerator
         {
             get => _numerator;
-            set => _numerator = value;
+            set => _numerator = ((value % _denominator) + _denominator) % _denominator;
         }
         public static int Denominator => _denominator;
         public Angle(int numerator)
