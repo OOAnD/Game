@@ -32,17 +32,7 @@
         }
         public override bool Equals(object obj)
         {
-            if ((obj is null) || Numerator != ((Angle)obj).Numerator)
-            {
-                return false;
-            }
-
-            if (Numerator == ((Angle)obj).Numerator)
-            {
-                return true;
-            }
-
-            throw new NotImplementedException();
+            return obj is Angle angle && (Numerator == angle.Numerator) || (obj is null && !(this is Angle));
         }
         public override int GetHashCode()
         {
