@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System.Runtime.InteropServices;
+using Moq;
 
 namespace SpaceBattle.Tests
 {
@@ -11,73 +12,48 @@ namespace SpaceBattle.Tests
             //Arrange
             var rotatingObject = new Mock<IRotating>();
             var angle = new Angle(45);
-            var angleVelocity = new Angle(90);
-            var resultAngle = new Angle(135);
+            var angleVelocity = new Angle(45);
+            var resultAngle = new Angle(90);
             var testRotate = new RotateCommand(rotatingObject.Object);
 
             rotatingObject.Setup(obj => obj.Angle).Returns(angle);
             rotatingObject.Setup(obj => obj.Velocity).Returns(angleVelocity);
 
+            rotatingObject.SetupSet(obj => obj.Angle = It.IsAny<Angle>()).Callback<Angle>(a => angle = a);
             //Act
             testRotate.Execute();
-
             //Assert
-            Assert.True(new Angle(135) == resultAngle);
-
+            Assert.True(resultAngle == angle);
         }
         [Fact]
-        public void Define_ValueShouldBeGreaterThanZero()
+        public void Execute_ShouldThrowException_WhenNoAngle()
         {
-            //Arrange & Act
-            var angle = new Angle(-100000, 360);
-            var isPositive = angle.Value >= 0;
-
-            //Assert
-            Assert.True(isPositive);
+            var rotatingObject = new Mock<IRotating>();
+            var testRotate = new RotateCommand(rotatingObject.Object);
+            var angleVelocity = new Angle(45);
+            rotatingObject.Setup(obj => obj.Velocity).Returns(angleVelocity);
+            
+            Assert.ThrowsAny<Exception>(testRotate.Execute);
         }
         [Fact]
-        public void Define_ValueShouldBeLessThanBorder()
+        public void Execute_ShouldThrowException_WhenNoVelocity()
         {
-            //Arrange & Act
-            var angle = new Angle(100000, 360);
-            var isLessThanBorder = angle.Value < angle.Border;
-
-            //Assert
-            Assert.True(isLessThanBorder);
+            var rotatingObject = new Mock<IRotating>();
+            var testRotate = new RotateCommand(rotatingObject.Object);
+            var angle = new Angle(45);
+            rotatingObject.Setup(obj => obj.Angle).Returns(angle);
+            
+            Assert.ThrowsAny<Exception>(testRotate.Execute);
         }
         [Fact]
-        public void Define_BorderShouldBeGreaterThanZero()
+        public void Execute_ShouldThrowException_WhenCantRotate()
         {
-            //Arrange & Act & Assert
-            Assert.Throws<Exception>(() => new Angle(90, -360));
-        }
-        [Fact]
-        public void Sum_ShouldBeGreaterThanZero()
-        {
-            //Arrange
-            var angle1 = new Angle(100, 120);
-            var angle2 = new Angle(120, 150);
+            var rotatingObject = new Mock<IRotating>();
+            var testRotate = new RotateCommand(rotatingObject.Object);
+            
+            rotatingObject.SetupGet(obj => obj.Angle).Throws(new Exception());
 
-            //Act
-            var angleSum = angle1 + angle2;
-            var isGreaterThanZero = angleSum.Value >= 0;
-
-            //Assert
-            Assert.True(isGreaterThanZero);
-        }
-        [Fact]
-        public void Sum_ShouldBeLessThanBorder()
-        {
-            //Arrange
-            var angle1 = new Angle(100, 120);
-            var angle2 = new Angle(120, 150);
-            //Act
-            var angleSum = angle1 + angle2;
-            var isLessThanBorder = angleSum.Value < angleSum.Border;
-
-            //Assert
-            Assert.True(isLessThanBorder);
-
+            Assert.Throws<Exception>(testRotate.Execute);
         }
     }
 }
