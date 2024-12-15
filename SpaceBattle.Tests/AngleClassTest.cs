@@ -51,7 +51,7 @@
             var testAngle1 = new Angle(15);
             var testAngle2 = new object();
 
-            Assert.ThrowsAny<Exception>(() => Equals(testAngle1,testAngle2));
+            Assert.ThrowsAny<Exception>(() => Equals(testAngle1, testAngle2));
 
         }
         [Fact]
