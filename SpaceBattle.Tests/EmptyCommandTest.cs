@@ -1,8 +1,4 @@
-﻿using App;
-using App.Scopes;
-using Moq;
-
-namespace SpaceBattle.Tests
+﻿namespace SpaceBattle.Tests
 {
     public class EmptyCommandTest
     {

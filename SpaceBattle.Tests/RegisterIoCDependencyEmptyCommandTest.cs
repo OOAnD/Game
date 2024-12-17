@@ -1,6 +1,5 @@
 ﻿using App;
 using App.Scopes;
-using Moq;
 
 namespace SpaceBattle.Tests
 {
