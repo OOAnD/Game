@@ -7,7 +7,7 @@ namespace SpaceBattle
         public void Execute()
         {
             Ioc.Resolve<App.ICommand>(
-                "Ioc.Register",
+                "IoC.Register",
                 "Commands.Rotate",
                 (object[] args) => new RotateCommand((IRotating)args[0])
             ).Execute();
