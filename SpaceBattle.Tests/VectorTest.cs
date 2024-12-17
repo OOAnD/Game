@@ -242,5 +242,67 @@
             // Act & Assert
             Assert.NotEqual(vector1.GetHashCode(), vector2.GetHashCode());
         }
+
+        [Fact]
+        public void GetHashCode_ShouldBeSame_ForZeroValues()
+        {
+            // Arrange
+            var vector1 = new Vector(2);
+            var vector2 = new Vector(2);
+
+            vector1.Set(0, 0);
+            vector2.Set(0, 0);
+
+            // Act & Assert
+            Assert.NotEqual(vector1.GetHashCode(), vector2.GetHashCode());
+        }
+
+        [Fact]
+        public void GetHashCode_ShouldBeDifferent_ForDifferentLargeValues()
+        {
+            // Arrange
+            var vector1 = new Vector(2);
+            var vector2 = new Vector(2);
+
+            vector1.Set(1000, 2000);
+            vector2.Set(2000, 1000);
+
+            // Act & Assert
+            Assert.NotEqual(vector1.GetHashCode(), vector2.GetHashCode());
+        }
+
+        [Fact]
+        public void Sum_ShouldBeCorrect_WithLargeValues()
+        {
+            // Arrange
+            var vector1 = new Vector(3);
+            var vector2 = new Vector(3);
+            var correct = new Vector(3);
+
+            vector1.Set(1000, 2000, 3000);
+            vector2.Set(4000, 5000, 6000);
+            correct.Set(5000, 7000, 9000);
+
+            // Act
+            var result = vector1 + vector2;
+
+            // Assert
+            Assert.True(result == correct);
+        }
+
+        [Fact]
+        public void Set_ShouldWork_WithLargeValues()
+        {
+            // Arrange
+            var vector = new Vector(2);
+
+            // Act
+            vector.Set(1000, 2000);
+
+            // Assert
+            var correct = new Vector(2);
+            correct.Set(1000, 2000);
+            Assert.True(vector == correct);
+        }
     }
 }
