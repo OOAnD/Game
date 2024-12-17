@@ -30,6 +30,10 @@
         {
             return thisAngle.Numerator != otherAngle.Numerator;
         }
+        public NaturalFraction ToNaturalFraction()
+        {
+            return new NaturalFraction(Numerator, Angle.Denominator);
+        }
         public override bool Equals(object obj)
         {
             return obj is Angle angle && (Numerator == angle.Numerator) || (obj is null && !(this is Angle));

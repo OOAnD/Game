@@ -86,14 +86,20 @@
             Assert.True(testTrue);
         }
         [Fact]
+        public void ToNaturalFraction_ShouldReturnNaturalFraction()
+        {
+            var testAngle = new Angle(1);
+            var testNaturalFraction = testAngle.ToNaturalFraction();
+
+            Assert.IsType<NaturalFraction>(testNaturalFraction);
+        }
+        [Fact]
         public void GetHashCode_ShouldReturnHashCode()
         {
             var testAngle = new Angle(1);
             var testAngleHashCode = testAngle.GetHashCode();
 
-            var testTrue = testAngleHashCode is int;
-
-            Assert.True(testTrue);
+            Assert.IsType<int>(testAngleHashCode);
         }
     }
 }

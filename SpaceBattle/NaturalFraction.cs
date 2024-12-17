@@ -1,4 +1,4 @@
-namespace SpaceBattle
+﻿namespace SpaceBattle
 {
     public class NaturalFraction
     {
@@ -10,11 +10,11 @@ namespace SpaceBattle
             var _ = 1 / denominator;
 
             var s = Math.Sign(denominator);
-            _numerator   = numerator   * s;
+            _numerator = numerator * s;
             _denominator = denominator * s;
 
             var gcd = NaturalFraction.GCD(_numerator, _denominator);
-            _numerator   /= gcd;
+            _numerator /= gcd;
             _denominator /= gcd;
         }
 
@@ -41,7 +41,7 @@ namespace SpaceBattle
 
         public static NaturalFraction operator *(NaturalFraction a, int b)
         {
-            var gcd = NaturalFraction.GCD(a._denominator,b);
+            var gcd = NaturalFraction.GCD(a._denominator, b);
             var numerator = a._numerator * (b / gcd);
             return new NaturalFraction(numerator, a._denominator / gcd);
         }
@@ -56,7 +56,7 @@ namespace SpaceBattle
         public static NaturalFraction operator /(NaturalFraction a, int b)
         {
             _ = 1 / b;
-            var gcd = NaturalFraction.GCD(a._numerator,b);
+            var gcd = NaturalFraction.GCD(a._numerator, b);
             var denominator = a._denominator * (b / gcd);
             return new NaturalFraction(a._numerator / gcd, denominator);
         }
