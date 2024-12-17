@@ -64,20 +64,6 @@
         }
 
         [Fact]
-        public void Comparison_ShouldReturnTrue_ForSameValues()
-        {
-            // Arrange
-            var vector1 = new Vector(2);
-            var vector2 = new Vector(2);
-
-            vector1.Set(12, 5);
-            vector2.Set(12, 5);
-
-            // Act & Assert
-            Assert.True(vector1 == vector2);
-        }
-
-        [Fact]
         public void Comparison_ShouldReturnTrue_ForDifferentEqualsValues()
         {
             // Arrange
@@ -89,6 +75,20 @@
 
             // Act & Assert
             Assert.False(vector1.Equals(vector2));
+        }
+
+        [Fact]
+        public void Comparison_ShouldReturnTrue_ForSameValues()
+        {
+            // Arrange
+            var vector1 = new Vector(2);
+            var vector2 = new Vector(2);
+
+            vector1.Set(12, 5);
+            vector2.Set(12, 5);
+
+            // Act & Assert
+            Assert.True(vector1 == vector2);
         }
 
         [Fact]
@@ -106,6 +106,20 @@
         }
 
         [Fact]
+        public void Comparison_ShouldReturnFalse_ForSameValues()
+        {
+            // Arrange
+            var vector1 = new Vector(2);
+            var vector2 = new Vector(2);
+
+            vector1.Set(12, 5);
+            vector2.Set(12, 5);
+
+            // Act & Assert
+            Assert.False(vector1 != vector2);
+        }
+
+        [Fact]
         public void Availability_GetHashCode()
         {
             // Arrange
@@ -113,6 +127,32 @@
 
             // Act & Assert
             Assert.False(vector1.GetHashCode() == 0);
+        }
+
+        [Fact]
+        public void GetHashCode_ShouldBeCorrect1()
+        {
+            // Arrange
+            var vector1 = new Vector(3);
+            var vector2 = new Vector(3);
+
+            vector1.Set(1, -1, 2);
+            vector2.Set(1, -1, 2);
+
+            // Act & Assert
+            Assert.False(vector1.GetHashCode() == vector2.GetHashCode());
+        }
+
+        [Fact]
+        public void GetHashCode_ShouldBeCorrect2()
+        {
+            // Arrange
+            var vector1 = new Vector(3);
+
+            vector1.Set(1, -1, 2);
+
+            // Act & Assert
+            Assert.True(vector1.GetHashCode() == vector1.GetHashCode());
         }
 
         [Fact]
