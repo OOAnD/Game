@@ -3,6 +3,12 @@
     public class AngleClassTest
     {
         [Fact]
+        public void Define_DenominatorShouldBe8()
+        {
+            // Arrange & Act & Assert
+            Assert.Equal(8, Angle.Denominator);
+        }
+        [Fact]
         public void Define_NumeratorShouldBeLessThanDenominator()
         {
             // Arrange
@@ -101,6 +107,12 @@
 
             // Assert
             Assert.True(testTrue);
+        }
+        [Fact]
+        public void Comparison_ShouldReturnFalse_ForNull()
+        {
+            // Arrange & Act & Assert
+            Assert.False(new Angle(1).Equals(null));
         }
         [Fact]
         public void GetHashCode_ShouldReturnHashCode()
