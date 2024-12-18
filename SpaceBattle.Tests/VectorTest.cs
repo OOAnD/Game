@@ -189,5 +189,57 @@
             // Act & Assert
             Assert.False(vector.Equals(null));
         }
+
+        [Fact]
+        public void Equals_ShouldReturnFalse_WhenComparedWithDifferentDimension()
+        {
+            // Arrange
+            var vector1 = new Vector(2);
+            var vector2 = new Vector(3);
+
+            // Act & Assert
+            Assert.False(vector1.Equals(vector2));
+        }
+
+        [Fact]
+        public void GetHashCode_ShouldBeDifferent_ForDifferentVectors()
+        {
+            // Arrange
+            var vector1 = new Vector(3);
+            vector1.Set(1, -1, 2);
+            var vector2 = new Vector(3);
+            vector2.Set(1, -1, 3);
+
+            // Act & Assert
+            Assert.NotEqual(vector1.GetHashCode(), vector2.GetHashCode());
+        }
+
+        [Fact]
+        public void Set_ShouldWork_WhenValuesArePassedAsArray()
+        {
+            // Arrange
+            var vector = new Vector(2);
+            int[] values = { 12, 5 };
+
+            // Act
+            vector.Set(values);
+
+            // Assert
+            var correct = new Vector(2);
+            correct.Set(12, 5);
+            Assert.True(vector == correct);
+        }
+
+        [Fact]
+        public void Sum_ShouldThrow_WhenOneVectorHasZeroDimension()
+        {
+            // Arrange
+            var vector1 = new Vector(3);
+            vector1.Set(1, -1, 2);
+            var vector2 = new Vector(0);
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => vector1 + vector2);
+        }
     }
 }
