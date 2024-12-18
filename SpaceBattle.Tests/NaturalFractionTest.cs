@@ -1,4 +1,4 @@
-namespace SpaceBattle.Tests
+﻿namespace SpaceBattle.Tests
 {
     public class NaturalFractionTest
     {
@@ -114,7 +114,7 @@ namespace SpaceBattle.Tests
 
             // Act
             var resultFraction = testFraction1 + testFraction2;
-            
+
             // Assert
             Assert.Equal(new NaturalFraction(11, 10), resultFraction);
         }
@@ -168,7 +168,7 @@ namespace SpaceBattle.Tests
             var resultFraction = testFraction1 / testFraction2;
 
             // Assert
-            Assert.Equal(new NaturalFraction(5,6), resultFraction);
+            Assert.Equal(new NaturalFraction(5, 6), resultFraction);
         }
         [Fact]
         public void DivInt_ShouldBeCorrect()
