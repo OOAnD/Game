@@ -60,17 +60,7 @@
 
         public static bool operator ==(NaturalFraction a, NaturalFraction b)
         {
-            if (ReferenceEquals(a, b))
-            {
-                return true;
-            }
-
-            if (a is null || b is null)
-            {
-                return false;
-            }
-
-            return a.Equals(b);
+            return a.Numerator == b.Numerator && a.Denominator == b.Denominator;
         }
 
         public static bool operator !=(NaturalFraction a, NaturalFraction b)
@@ -80,13 +70,7 @@
 
         public override bool Equals(object? obj)
         {
-            if (obj == null || GetType() != obj.GetType())
-            {
-                return false;
-            }
-
-            var other = (NaturalFraction)obj;
-            return Numerator == other.Numerator && Denominator == other.Denominator;
+            return obj is NaturalFraction fraction && (Numerator == fraction.Numerator)&& (Denominator == fraction.Denominator) || (obj is null && !(this is not null));
         }
 
         public override int GetHashCode()
