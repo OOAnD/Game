@@ -54,6 +54,7 @@
 
         public static NaturalFraction operator /(NaturalFraction a, int b)
         {
+            var _ = 1 / b;
             var denominator = a.Denominator * b;
             return new NaturalFraction(a.Numerator, denominator);
         }
