@@ -1,4 +1,6 @@
-﻿namespace SpaceBattle
+﻿using App;
+
+namespace SpaceBattle
 {
     public class EmptyCommand : ICommand
     {

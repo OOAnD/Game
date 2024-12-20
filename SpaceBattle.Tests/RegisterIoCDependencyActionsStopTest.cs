@@ -11,7 +11,7 @@ namespace SpaceBattle.Tests
             // Arrange
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            Ioc.Resolve<App.ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
             var registerCommand = new RegisterIoCDependencyActionsStop();
 

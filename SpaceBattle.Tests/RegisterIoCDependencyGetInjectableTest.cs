@@ -12,7 +12,7 @@ namespace SpaceBattle.Tests
             // Arrange
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            Ioc.Resolve<App.ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
             var mockInjectable = new Mock<ICommandInjectable>();
             var mockObjects = new Mock<IDictionary<string, IDictionary<string, object>>>();
@@ -21,7 +21,7 @@ namespace SpaceBattle.Tests
             mockObjects.Setup(o => o["testObjectId"]).Returns(mockObject.Object);
             mockObject.Setup(o => o["testCommandName"]).Returns(mockInjectable.Object);
 
-            Ioc.Resolve<App.ICommand>("IoC.Register", "Game.Objects", (object[] args) => mockObjects.Object).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects", (object[] args) => mockObjects.Object).Execute();
 
             var registerCommand = new RegisterIoCDependencyGetInjectable();
 
