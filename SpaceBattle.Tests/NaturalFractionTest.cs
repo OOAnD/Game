@@ -154,10 +154,10 @@
             Assert.False(testFraction1 != testFraction2);
         }
         [Fact]
-        public void ComparisonThroughMethod_ShouldReturnFalse_WhenValuesIsDifferent()
+        public void ComparisonThroughMethod_ShouldReturnFalse_WhenDifferentNumeratorIsDifferent()
         {
             // Arrange
-            var testFraction1 = new NaturalFraction(1, 2);
+            var testFraction1 = new NaturalFraction(1, 5);
             var testFraction2 = new NaturalFraction(3, 5);
 
             // Act
@@ -166,7 +166,32 @@
             // Assert
             Assert.False(testIsCorrect);
         }
+        [Fact]
+        public void ComparisonThroughMethod_ShouldReturnFalse_WhenDifferentDenominatorIsDifferent()
+        {
+            // Arrange
+            var testFraction1 = new NaturalFraction(1, 5);
+            var testFraction2 = new NaturalFraction(1, 7);
 
+            // Act
+            var testIsCorrect = testFraction1.Equals(testFraction2);
+
+            // Assert
+            Assert.False(testIsCorrect);
+        }
+        [Fact]
+        public void ComparisonThroughMethod_ShouldReturnFalse_WhenNotFractionGiven()
+        {
+            // Arrange
+            var testFraction1 = new NaturalFraction(1, 2);
+            var testFraction2 = 10;
+
+            // Act
+            var testIsCorrect = testFraction1.Equals(testFraction2);
+
+            // Assert
+            Assert.False(testIsCorrect);
+        }
         [Fact]
         public void ComparisonThroughMethod_ShouldReturnTrue_WhenValuesIsSame()
         {

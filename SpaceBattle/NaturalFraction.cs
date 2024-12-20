@@ -71,7 +71,7 @@
 
         public override bool Equals(object? obj)
         {
-            return obj is NaturalFraction fraction && (Numerator == fraction.Numerator) && (Denominator == fraction.Denominator) || (obj is null && !(this is not null));
+            return obj is NaturalFraction fraction && (Numerator == fraction.Numerator) && (Denominator == fraction.Denominator) || (obj is null && (this is null));
         }
 
         public override int GetHashCode()
