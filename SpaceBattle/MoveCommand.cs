@@ -7,7 +7,7 @@ namespace SpaceBattle
 
         public MoveCommand(IMoving movingObject)
         {
-            _movingObject = movingObject ?? throw new ArgumentNullException(nameof(movingObject));
+            _movingObject = movingObject;
         }
 
         public void Execute()

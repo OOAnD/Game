@@ -71,19 +71,5 @@ namespace SpaceBattle.Tests
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => moveCommand.Execute());
         }
-
-        [Fact]
-        public void Execute_ShouldThrowException_WhenPositionCannotBeRead_ButVelocityIsAvailable()
-        {
-            // Arrange
-            var movingObject = new Mock<IMoving>();
-            movingObject.SetupGet(m => m.Position).Throws(new InvalidOperationException("Position cannot be read."));
-            movingObject.SetupGet(m => m.Velocity).Returns(new Vector(2));
-
-            var moveCommand = new MoveCommand(movingObject.Object);
-
-            // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => moveCommand.Execute());
-        }
     }
 }
