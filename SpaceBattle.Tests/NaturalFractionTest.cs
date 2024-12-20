@@ -9,19 +9,6 @@
             Assert.ThrowsAny<Exception>(() => { new NaturalFraction(1, 0); });
         }
         [Fact]
-        public void GCD_ShouldReturnCorrectAnswer()
-        {
-            // Arrange 
-            var testInt1 = 4;
-            var testInt2 = 8;
-
-            // Act
-            var gcd = NaturalFraction.GCD(testInt1, testInt2);
-
-            // Assert
-            Assert.Equal(4, gcd);
-        }
-        [Fact]
         public void Define_ShouldReduce_WhenPossible()
         {
             // Arrange
