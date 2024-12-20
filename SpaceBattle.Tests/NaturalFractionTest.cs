@@ -114,72 +114,47 @@
             Assert.ThrowsAny<Exception>(() => { var _ = testFraction / 0; });
         }
         [Fact]
-        public void Comparison_ShouldReturnFalse_WhenDenominatorIsDifferent_ThroughOperator()
+        public void ComparisonThroughOperator_ShouldReturnTrue_WhenValuesIsSame()
         {
             // Arrange
             var testFraction1 = new NaturalFraction(1, 2);
-            var testFraction2 = new NaturalFraction(1, 5);
+            var testFraction2 = new NaturalFraction(2, 4);
 
-            // Act
-            var testIsCorrect = testFraction1 == testFraction2;
-
-            // Assert
-            Assert.False(testIsCorrect);
+            // Act &  Assert
+            Assert.True(testFraction1 == testFraction2);
         }
         [Fact]
-        public void Comparison_ShouldReturnFalse_WhenNumeratorIsDifferent_ThroughOperator()
-        {
-            // Arrange
-            var testFraction1 = new NaturalFraction(1, 2);
-            var testFraction2 = new NaturalFraction(3, 2);
-
-            // Act
-            var testIsCorrect = testFraction1 == testFraction2;
-
-            // Assert
-            Assert.False(testIsCorrect);
-        }
-        [Fact]
-        public void Comparison_ShouldReturnTrue_WhenValuesIsDifferent_ThroughOperator()
+        public void ComparisonThroughOperator_ShouldReturnFalse_WhenValuesIsDifferent()
         {
             // Arrange
             var testFraction1 = new NaturalFraction(1, 2);
             var testFraction2 = new NaturalFraction(3, 5);
 
-            // Act
-            var testIsCorrect = testFraction1 != testFraction2;
-
-            // Assert
-            Assert.True(testIsCorrect);
+            // Act & Assert
+            Assert.False(testFraction1 == testFraction2);
         }
         [Fact]
-        public void Comparison_ShouldReturnTrue_WhenValuesIsSame_ThroughOperator()
+        public void ComparisonThroughOperator_ShouldReturnTrue_WhenValuesIsDifferent()
+        {
+            // Arrange
+            var testFraction1 = new NaturalFraction(1, 2);
+            var testFraction2 = new NaturalFraction(3, 5);
+
+            // Act & Assert
+            Assert.True(testFraction1 != testFraction2);
+        }
+        [Fact]
+        public void ComparisonThroughOperator_ShouldReturnFalse_WhenValuesIsSame()
         {
             // Arrange
             var testFraction1 = new NaturalFraction(1, 2);
             var testFraction2 = new NaturalFraction(2, 4);
 
-            // Act
-            var testIsCorrect = testFraction1 == testFraction2;
-
-            // Assert
-            Assert.True(testIsCorrect);
+            // Act & Assert
+            Assert.False(testFraction1 != testFraction2);
         }
         [Fact]
-        public void Comparison_ShouldReturnFalse_WhenValuesIsSame_ThroughOperator()
-        {
-            // Arrange
-            var testFraction1 = new NaturalFraction(1, 2);
-            var testFraction2 = new NaturalFraction(2, 4);
-
-            // Act
-            var testIsCorrect = testFraction1 != testFraction2;
-
-            // Assert
-            Assert.False(testIsCorrect);
-        }
-        [Fact]
-        public void Comparison_ShouldReturnFalse_WhenValuesIsDifferent_ThroughMethod()
+        public void ComparisonThroughMethod_ShouldReturnFalse_WhenValuesIsDifferent()
         {
             // Arrange
             var testFraction1 = new NaturalFraction(1, 2);
@@ -193,7 +168,7 @@
         }
 
         [Fact]
-        public void Comparison_ShouldReturnTrue_WhenValuesIsSame_ThroughMethod()
+        public void ComparisonThroughMethod_ShouldReturnTrue_WhenValuesIsSame()
         {
             // Arrange
             var testFraction1 = new NaturalFraction(1, 2);
