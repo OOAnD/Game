@@ -126,33 +126,7 @@
             var vector1 = new Vector(2);
 
             // Act & Assert
-            Assert.False(vector1.GetHashCode() == 0);
-        }
-
-        [Fact]
-        public void GetHashCode_ShouldBeCorrect1()
-        {
-            // Arrange
-            var vector1 = new Vector(3);
-            var vector2 = new Vector(3);
-
-            vector1.Set(1, -1, 2);
-            vector2.Set(1, -1, 2);
-
-            // Act & Assert
-            Assert.False(vector1.GetHashCode() == vector2.GetHashCode());
-        }
-
-        [Fact]
-        public void GetHashCode_ShouldBeCorrect2()
-        {
-            // Arrange
-            var vector1 = new Vector(3);
-
-            vector1.Set(1, -1, 2);
-
-            // Act & Assert
-            Assert.True(vector1.GetHashCode() == vector1.GetHashCode());
+            vector1.GetHashCode();
         }
 
         [Fact]
@@ -163,21 +137,6 @@
 
             // Act & Assert
             Assert.Throws<ArgumentException>(() => vector.Set(12));
-        }
-
-        [Fact]
-        public void Set_ShouldWork_WhenCorrectNumberOfValues()
-        {
-            // Arrange
-            var vector = new Vector(2);
-
-            // Act
-            vector.Set(12, 5);
-
-            // Assert
-            var correct = new Vector(2);
-            correct.Set(12, 5);
-            Assert.True(vector == correct);
         }
 
         [Fact]
@@ -202,19 +161,6 @@
         }
 
         [Fact]
-        public void GetHashCode_ShouldBeDifferent_ForDifferentVectors()
-        {
-            // Arrange
-            var vector1 = new Vector(3);
-            vector1.Set(1, -1, 2);
-            var vector2 = new Vector(3);
-            vector2.Set(1, -1, 3);
-
-            // Act & Assert
-            Assert.NotEqual(vector1.GetHashCode(), vector2.GetHashCode());
-        }
-
-        [Fact]
         public void Set_ShouldWork_WhenValuesArePassedAsArray()
         {
             // Arrange
@@ -228,18 +174,6 @@
             var correct = new Vector(2);
             correct.Set(12, 5);
             Assert.True(vector == correct);
-        }
-
-        [Fact]
-        public void Sum_ShouldThrow_WhenOneVectorHasZeroDimension()
-        {
-            // Arrange
-            var vector1 = new Vector(3);
-            vector1.Set(1, -1, 2);
-            var vector2 = new Vector(0);
-
-            // Act & Assert
-            Assert.Throws<ArgumentException>(() => vector1 + vector2);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿namespace SpaceBattle
+﻿using App;
+namespace SpaceBattle
 {
     public class MoveCommand : ICommand
     {
