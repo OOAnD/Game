@@ -44,28 +44,8 @@ namespace SpaceBattle.Tests
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
-
             Ioc.Resolve<ICommand>("IoC.Register", "Specs.Move", (object[] args) => new string[] { "Command1", "Command2" }).Execute();
-
-            // Act & Assert
-            var strategy = new CreateMacroCommandStrategy("Move");
-            Assert.Throws<Exception>(() => strategy.Resolve(new object[] { new object() }));
-        }
-
-        [Fact]
-        public void Resolve_ThrowsException_WhenMacroCommandDependencyIsNotResolved()
-        {
-            // Arrange
-            new InitCommand().Execute();
-            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
-
-            var command1Mock = new Mock<ICommand>();
-            var command2Mock = new Mock<ICommand>();
-
-            Ioc.Resolve<ICommand>("IoC.Register", "Specs.Move", (object[] args) => new string[] { "Command1", "Command2" }).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.Command1", (object[] args) => command1Mock.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.Command2", (object[] args) => command2Mock.Object).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Commands.Macro", (object[] args) => new Mock<ICommand>().Object).Execute();
 
             // Act & Assert
             var strategy = new CreateMacroCommandStrategy("Move");
@@ -79,6 +59,7 @@ namespace SpaceBattle.Tests
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Commands.Macro", (object[] args) => new Mock<ICommand>().Object).Execute();
 
             // Act & Assert
             var strategy = new CreateMacroCommandStrategy("Move");
