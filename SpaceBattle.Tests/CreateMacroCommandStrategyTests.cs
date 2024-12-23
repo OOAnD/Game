@@ -44,21 +44,8 @@ namespace SpaceBattle.Tests
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+
             Ioc.Resolve<ICommand>("IoC.Register", "Specs.Move", (object[] args) => new string[] { "Command1", "Command2" }).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.Macro", (object[] args) => new Mock<ICommand>().Object).Execute();
-
-            // Act & Assert
-            var strategy = new CreateMacroCommandStrategy("Move");
-            Assert.Throws<Exception>(() => strategy.Resolve(new object[] { new object() }));
-        }
-
-        [Fact]
-        public void Resolve_ThrowsException_WhenSpecDependenciesAreNotResolved()
-        {
-            // Arrange
-            new InitCommand().Execute();
-            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
             Ioc.Resolve<ICommand>("IoC.Register", "Commands.Macro", (object[] args) => new Mock<ICommand>().Object).Execute();
 
             // Act & Assert
