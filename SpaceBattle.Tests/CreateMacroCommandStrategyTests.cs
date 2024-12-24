@@ -21,19 +21,23 @@ namespace SpaceBattle.Tests
             Ioc.Resolve<ICommand>("IoC.Register", "Specs.Move", (object[] args) => new string[] { "Command1", "Command2" }).Execute();
             Ioc.Resolve<ICommand>("IoC.Register", "Commands.Command1", (object[] args) => command1Mock.Object).Execute();
             Ioc.Resolve<ICommand>("IoC.Register", "Commands.Command2", (object[] args) => command2Mock.Object).Execute();
+
+            var isMacroCommandCreatedCorrectly = false;
             Ioc.Resolve<ICommand>("IoC.Register", "Commands.Macro", (object[] args) =>
             {
-                Assert.Equal(2, args.Length);
-                Assert.Equal(command1Mock.Object, args[0]);
-                Assert.Equal(command2Mock.Object, args[1]);
+                isMacroCommandCreatedCorrectly = args.Length == 2
+                                                  && args[0] == command1Mock.Object
+                                                  && args[1] == command2Mock.Object;
+
                 return macroCommandMock.Object;
             }).Execute();
-
+            
             // Act
             var strategy = new CreateMacroCommandStrategy("Move");
             var macroCommand = strategy.Resolve(new object[] { new object() });
 
             // Assert
+            Assert.True(isMacroCommandCreatedCorrectly);
             Assert.Equal(macroCommandMock.Object, macroCommand);
         }
 
