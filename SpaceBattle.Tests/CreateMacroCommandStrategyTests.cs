@@ -31,7 +31,7 @@ namespace SpaceBattle.Tests
 
                 return macroCommandMock.Object;
             }).Execute();
-            
+
             // Act
             var strategy = new CreateMacroCommandStrategy("Move");
             var macroCommand = strategy.Resolve(new object[] { new object() });
