@@ -35,7 +35,7 @@
 
         public override int GetHashCode()
         {
-            return Coordinates.GetHashCode();
+            return Coordinates.Aggregate(17, (hash, coordinate) => hash * 23 + coordinate.GetHashCode());
         }
     }
 }

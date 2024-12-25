@@ -96,10 +96,11 @@
         public void Availability_GetHashCode()
         {
             // Arrange
-            var vector1 = new Vector(2);
+            var vector1 = new Vector(1, 2);
+            var vector2 = new Vector(1, 2);
 
             // Act & Assert
-            vector1.GetHashCode();
+            Assert.True(vector1.GetHashCode() == vector2.GetHashCode());
         }
 
         [Fact]
