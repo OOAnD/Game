@@ -12,9 +12,9 @@ namespace SpaceBattle
                 "Commands.Move",
                 (object[] args) =>
                 {
-                    var rotating = Ioc.Resolve<IMoving>("Adapters.Moving", args[0]);
+                    var moving = Ioc.Resolve<IMoving>("Adapters.Moving", args[0]);
 
-                    return new MoveCommand(rotating);
+                    return new MoveCommand(moving);
                 }
             ).Execute();
         }
