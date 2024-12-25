@@ -14,7 +14,6 @@ namespace SpaceBattle.Tests
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var movingObject = new Mock<IMoving>();
             var moving = new Mock<IMoving>();
             var gameObject = new object();
             var registrator = new RegisterIoCDependencyMoveCommand();
