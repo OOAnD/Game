@@ -1,6 +1,4 @@
-﻿using App;
-
-namespace SpaceBattle
+﻿namespace SpaceBattle
 {
     public interface IIoCContainer
     {
