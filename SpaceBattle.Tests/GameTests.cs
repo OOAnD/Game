@@ -6,42 +6,42 @@ namespace SpaceBattle.Tests
     public class GameTests
     {
         [Fact]
-        public void ProcessOrder_ShouldExecuteCommand()
+        public void Execute_ShouldProcessCommandsInQueue()
         {
             // Arrange
-            var mockIoC = new Mock<IIoCContainer>();
+            var mockCommandQueue = new Mock<IQueue<ICommand>>();
             var mockCommand = new Mock<ICommand>();
 
-            mockIoC.Setup(ioc => ioc.Resolve<ICommand>("Commands.Shoot", It.IsAny<IDictionary<string, object>>()))
-                   .Returns(mockCommand.Object);
-
-            var game = new Game(mockIoC.Object);
-            var order = new Dictionary<string, object>();
+            mockCommandQueue.Setup(q => q.Take()).Returns(mockCommand.Object);
+            var game = new Game(mockCommandQueue.Object);
 
             // Act
-            game.ProcessOrder(order);
+            Task.Run(() => game.Execute());
+            Thread.Sleep(100);
+            game.Stop();
 
             // Assert
-            mockCommand.Verify(cmd => cmd.Execute(), Times.Once);
+            mockCommand.Verify(c => c.Execute(), Times.AtLeastOnce);
         }
 
         [Fact]
-        public void ProcessOrder_ShouldHandleException()
+        public void Execute_ShouldHandleCommandExecutionFailure()
         {
             // Arrange
-            var mockIoC = new Mock<IIoCContainer>();
+            var mockCommandQueue = new Mock<IQueue<ICommand>>();
             var mockCommand = new Mock<ICommand>();
 
-            mockCommand.Setup(cmd => cmd.Execute()).Throws(new Exception("Test exception"));
-            mockIoC.Setup(ioc => ioc.Resolve<ICommand>("Commands.Shoot", It.IsAny<IDictionary<string, object>>()))
-                   .Returns(mockCommand.Object);
+            mockCommand.Setup(c => c.Execute()).Throws(new Exception("Command failed"));
+            mockCommandQueue.Setup(q => q.Take()).Returns(mockCommand.Object);
+            var game = new Game(mockCommandQueue.Object);
 
-            var game = new Game(mockIoC.Object);
-            var order = new Dictionary<string, object>();
+            // Act
+            Task.Run(() => game.Execute());
+            Thread.Sleep(100);
+            game.Stop();
 
-            // Act & Assert
-            var ex = Assert.Throws<Exception>(() => game.ProcessOrder(order));
-            Assert.Equal("Test exception", ex.Message);
+            // Assert
+            mockCommand.Verify(c => c.Execute(), Times.AtLeastOnce);
         }
     }
 }

@@ -1,30 +1,41 @@
 ﻿using App;
+using App.Scopes;
 
 namespace SpaceBattle
 {
-    public class Game
+    public class Game : ICommand
     {
-        private readonly IIoCContainer _iocContainer;
+        private readonly IQueue<ICommand> _commandQueue;
+        private bool _isRunning;
 
-        public Game(IIoCContainer iocContainer)
+        public Game(IQueue<ICommand> commandQueue)
         {
-            _iocContainer = iocContainer ?? throw new ArgumentNullException(nameof(iocContainer));
+            _commandQueue = commandQueue;
+            _isRunning = true;
         }
 
-        public void ProcessOrder(IDictionary<string, object> order)
+        public void Execute()
         {
-            _ = order ?? throw new ArgumentNullException(nameof(order));
+            new InitCommand().Execute();
+            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            try
+            while (_isRunning)
             {
-                var command = _iocContainer.Resolve<ICommand>("Commands.Shoot", order);
-                command.Execute();
+                var command = _commandQueue.Take();
+                try
+                {
+                    command.Execute();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Command execution failed: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при выполнении приказа: {ex.Message}");
-                throw;
-            }
+        }
+        public void Stop()
+        {
+            _isRunning = false;
         }
     }
 }
