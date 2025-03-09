@@ -41,5 +41,16 @@ namespace SpaceBattle.Test
             var exception = Assert.Throws<Exception>(() => strategy.Execute(objectId));
             Assert.Equal("Object not found", exception.Message);
         }
+
+        [Fact]
+        public void Constructor_ShouldThrowException_WhenGameObjectsIsNull()
+        {
+            // Arrange
+            IDictionary<string, object>? nullGameObjects = null;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentNullException>(() => new FindGameObjectStrategy(nullGameObjects!));
+            Assert.Equal("gameObjects", exception.ParamName);
+        }
     }
 }

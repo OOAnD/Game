@@ -60,5 +60,16 @@
             var exception = Assert.Throws<ArgumentNullException>(() => shipFinder.Execute(null!));
             Assert.Equal("userId", exception.ParamName);
         }
+
+        [Fact]
+        public void Constructor_ShouldThrowException_WhenShipsIsNull()
+        {
+            // Arrange
+            IDictionary<string, string>? nullShips = null;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentNullException>(() => new PlayersShipFinder(nullShips!));
+            Assert.Equal("ships", exception.ParamName);
+        }
     }
 }

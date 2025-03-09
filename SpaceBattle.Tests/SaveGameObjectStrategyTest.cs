@@ -65,5 +65,16 @@
             var exception = Assert.Throws<ArgumentNullException>(() => saveStrategy.Execute("object1", null!));
             Assert.Equal("gameObject", exception.ParamName);
         }
+
+        [Fact]
+        public void Constructor_ShouldThrowException_WhenGameObjectsIsNull()
+        {
+            // Arrange
+            IDictionary<string, object>? nullGameObjects = null;
+
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentNullException>(() => new SaveGameObjectStrategy(nullGameObjects!));
+            Assert.Equal("gameObjects", exception.ParamName);
+        }
     }
 }
