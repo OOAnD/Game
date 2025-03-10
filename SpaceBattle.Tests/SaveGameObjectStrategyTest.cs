@@ -1,80 +1,72 @@
-﻿namespace SpaceBattle.Test
+﻿using App;
+using App.Scopes;
+
+namespace SpaceBattle.Tests
 {
-    public class SaveGameObjectStrategyTest
+    public class SaveGameObjectCommandTest
     {
         [Fact]
-        public void Execute_ShouldSaveGameObject_WhenInputIsValid()
+        public void Execute_ShouldSaveGameObject_WhenObjectIsValid()
         {
             // Arrange
-            var gameObjects = new Dictionary<string, object>();
-            var saveStrategy = new SaveGameObjectStrategy(gameObjects);
+            new InitCommand().Execute();
+            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var objectId = "object1";
-            var gameObject = new object();
+            var gameObjectId = "object1";
+            var gameObject = new Dictionary<string, object> { { "id", gameObjectId } };
+
+            var objects = new Dictionary<string, IDictionary<string, object>>();
+
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.GetAll", (Func<object[], IDictionary<string, IDictionary<string, object>>>)(_ => objects)).Execute();
+
+            var command = new SaveGameObjectCommand(gameObject);
 
             // Act
-            saveStrategy.Execute(objectId, gameObject);
+            command.Execute();
 
             // Assert
-            Assert.Single(gameObjects);
-            Assert.Equal(gameObject, gameObjects[objectId]);
+            Assert.True(objects.ContainsKey(gameObjectId));
+            Assert.Equal(gameObject, objects[gameObjectId]);
         }
 
         [Fact]
-        public void Execute_ShouldOverwriteGameObject_WhenObjectIdExists()
+        public void Execute_ShouldThrowException_WhenObjectIdIsMissing()
         {
             // Arrange
-            var gameObjects = new Dictionary<string, object>
-            {
-                { "object1", new object() }
-            };
+            new InitCommand().Execute();
+            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var saveStrategy = new SaveGameObjectStrategy(gameObjects);
+            var gameObject = new Dictionary<string, object>();
 
-            var objectId = "object1";
-            var newGameObject = new object();
+            var objects = new Dictionary<string, IDictionary<string, object>>();
 
-            // Act
-            saveStrategy.Execute(objectId, newGameObject);
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.GetAll", (Func<object[], IDictionary<string, IDictionary<string, object>>>)(_ => objects)).Execute();
 
-            // Assert
-            Assert.Single(gameObjects);
-            Assert.Equal(newGameObject, gameObjects[objectId]);
-        }
-
-        [Fact]
-        public void Execute_ShouldThrowException_WhenObjectIdIsNull()
-        {
-            // Arrange
-            var gameObjects = new Dictionary<string, object>();
-            var saveStrategy = new SaveGameObjectStrategy(gameObjects);
+            var command = new SaveGameObjectCommand(gameObject);
 
             // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => saveStrategy.Execute(null!, new object()));
-            Assert.Equal("objectId", exception.ParamName);
+            Assert.Throws<KeyNotFoundException>(() => command.Execute());
         }
 
         [Fact]
-        public void Execute_ShouldThrowException_WhenGameObjectIsNull()
+        public void Execute_ShouldThrowException_WhenObjectsCollectionIsNotInitialized()
         {
             // Arrange
-            var gameObjects = new Dictionary<string, object>();
-            var saveStrategy = new SaveGameObjectStrategy(gameObjects);
+            new InitCommand().Execute();
+            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+
+            var gameObjectId = "object1";
+            var gameObject = new Dictionary<string, object> { { "id", gameObjectId } };
+
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.GetAll", (Func<object[], IDictionary<string, IDictionary<string, object>>?>)(_ => null)).Execute();
+
+            var command = new SaveGameObjectCommand(gameObject);
 
             // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => saveStrategy.Execute("object1", null!));
-            Assert.Equal("gameObject", exception.ParamName);
-        }
-
-        [Fact]
-        public void Constructor_ShouldThrowException_WhenGameObjectsIsNull()
-        {
-            // Arrange
-            IDictionary<string, object>? nullGameObjects = null;
-
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => new SaveGameObjectStrategy(nullGameObjects!));
-            Assert.Equal("gameObjects", exception.ParamName);
+            Assert.Throws<NullReferenceException>(() => command.Execute());
         }
     }
 }

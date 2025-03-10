@@ -1,12 +1,13 @@
-﻿namespace SpaceBattle
-{
-    public class SaveGameObjectStrategy(IDictionary<string, object> gameObjects)
-    {
-        private readonly IDictionary<string, object> _gameObjects = gameObjects ?? throw new ArgumentNullException(nameof(gameObjects));
+﻿using App;
 
-        public void Execute(string objectId, object gameObject)
+namespace SpaceBattle
+{
+    public class SaveGameObjectCommand(IDictionary<string, object> gameObject) : ICommand
+    {
+        public void Execute()
         {
-            _gameObjects[objectId ?? throw new ArgumentNullException(nameof(objectId), "Идентификатор объекта не может быть null.")] = gameObject ?? throw new ArgumentNullException(nameof(gameObject), "Игровой объект не может быть null.");
+            var objects = Ioc.Resolve<IDictionary<string, IDictionary<string, object>>>("Game.Objects.GetAll");
+            objects[(string)gameObject["id"]] = gameObject;
         }
     }
 }
