@@ -1,17 +1,13 @@
-﻿namespace SpaceBattle
+﻿using App;
+
+namespace SpaceBattle
 {
-    public class FindGameObjectStrategy(IDictionary<string, object> gameObjects)
+    public class FindGameObjectStrategy(string objectId)
     {
-        private readonly IDictionary<string, object> _gameObjects = gameObjects ?? throw new ArgumentNullException(nameof(gameObjects));
-
-        public object Execute(string objectId)
+        public object Find()
         {
-            if (_gameObjects.TryGetValue(objectId, out var gameObject))
-            {
-                return gameObject;
-            }
-
-            throw new Exception("Object not found");
+            var objects = Ioc.Resolve<IDictionary<string, object>>("Game.Object.GetAll");
+            return objects[objectId];
         }
     }
 }

@@ -1,56 +1,55 @@
-﻿using Moq;
+﻿using App;
+using App.Scopes;
+using Moq;
 
-namespace SpaceBattle.Test
+namespace SpaceBattle.Tests
 {
     public class FindGameObjectStrategyTest
     {
         [Fact]
-        public void Execute_ShouldReturnGameObject_WhenObjectExists()
+        public void Find_ShouldReturnGameObject_WhenObjectExists()
         {
             // Arrange
-            var objectId = "object1";
-            var expectedGameObject = new object();
+            new InitCommand().Execute();
+            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var gameObjectsMock = new Mock<IDictionary<string, object>>();
-            gameObjectsMock.Setup(dict => dict.TryGetValue(objectId, out expectedGameObject))
-                          .Returns(true);
+            var objectId = "player";
+            var expectedObject = new object();
 
-            var strategy = new FindGameObjectStrategy(gameObjectsMock.Object);
+            var mockObjects = new Mock<IDictionary<string, object>>();
+            mockObjects.Setup(d => d[objectId]).Returns(expectedObject);
+
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Object.GetAll", (object[] args) => mockObjects.Object).Execute();
+
+            var strategy = new FindGameObjectStrategy(objectId);
 
             // Act
-            var result = strategy.Execute(objectId);
+            var result = strategy.Find();
 
             // Assert
-            Assert.Equal(expectedGameObject, result);
+            Assert.Equal(expectedObject, result);
         }
 
         [Fact]
-        public void Execute_ShouldThrowException_WhenObjectDoesNotExist()
+        public void Find_ShouldThrowException_WhenObjectDoesNotExist()
         {
             // Arrange
+            new InitCommand().Execute();
+            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+
             var objectId = "nonExistentObject";
-            object? nullGameObject = null;
 
-            var gameObjectsMock = new Mock<IDictionary<string, object>>();
-            gameObjectsMock.Setup(dict => dict.TryGetValue(objectId, out nullGameObject))
-                          .Returns(false);
+            var mockObjects = new Mock<IDictionary<string, object>>();
+            mockObjects.Setup(d => d[objectId]).Throws<KeyNotFoundException>();
 
-            var strategy = new FindGameObjectStrategy(gameObjectsMock.Object);
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Object.GetAll", (object[] args) => mockObjects.Object).Execute();
 
-            // Act & Assert
-            var exception = Assert.Throws<Exception>(() => strategy.Execute(objectId));
-            Assert.Equal("Object not found", exception.Message);
-        }
-
-        [Fact]
-        public void Constructor_ShouldThrowException_WhenGameObjectsIsNull()
-        {
-            // Arrange
-            IDictionary<string, object>? nullGameObjects = null;
+            var strategy = new FindGameObjectStrategy(objectId);
 
             // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => new FindGameObjectStrategy(nullGameObjects!));
-            Assert.Equal("gameObjects", exception.ParamName);
+            Assert.Throws<KeyNotFoundException>(() => strategy.Find());
         }
     }
 }
