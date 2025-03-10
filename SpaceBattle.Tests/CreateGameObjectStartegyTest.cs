@@ -1,49 +1,41 @@
-﻿namespace SpaceBattle.Test
+﻿namespace SpaceBattle.Tests
 {
-    public class CreateGameObjectStrategyTest
+    public class CreateTorpedoStrategyTest
     {
         [Fact]
-        public void Execute_ShouldAddGameObject_WithUniqueId()
+        public void Create_ReturnsDictionary()
         {
-            // Arrange
-            var strategy = new CreateGameObjectStrategy();
-            var gameObject = new object();
-
             // Act
-            var objectId = strategy.Execute(gameObject);
+            var result = CreateTorpedoStrategy.Create();
 
             // Assert
-            var gameObjects = strategy.GetGameObjects();
-            Assert.Single(gameObjects);
-            Assert.Equal(gameObject, gameObjects[objectId]);
+            Assert.IsType<Dictionary<string, object>>(result);
         }
 
         [Fact]
-        public void Execute_ShouldThrowException_WhenGameObjectIsNull()
+        public void Create_ReturnsDictionaryWithTypeTorpedo()
         {
-            // Arrange
-            var strategy = new CreateGameObjectStrategy();
+            // Act
+            var result = CreateTorpedoStrategy.Create() as Dictionary<string, object>;
 
-            // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => strategy.Execute(null!));
-            Assert.Equal("gameObject", exception.ParamName);
-            Assert.Contains("Игровой объект не может быть null.", exception.Message);
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(result.ContainsKey("type"));
+            Assert.Equal("torpedo", result["type"]);
         }
 
         [Fact]
-        public void Execute_ShouldGenerateUniqueIds_ForMultipleObjects()
+        public void Create_ReturnsDictionaryWithValidGuidId()
         {
-            // Arrange
-            var strategy = new CreateGameObjectStrategy();
-            var gameObject1 = new object();
-            var gameObject2 = new object();
-
             // Act
-            var objectId1 = strategy.Execute(gameObject1);
-            var objectId2 = strategy.Execute(gameObject2);
+            var result = CreateTorpedoStrategy.Create() as Dictionary<string, object>;
 
             // Assert
-            Assert.NotEqual(objectId1, objectId2);
+            Assert.NotNull(result);
+            Assert.True(result.ContainsKey("id"));
+            var id = result["id"] as string;
+            Assert.NotNull(id);
+            Assert.True(Guid.TryParse(id, out _));
         }
     }
 }
