@@ -1,75 +1,82 @@
-﻿namespace SpaceBattle.Test
+﻿using App;
+using App.Scopes;
+using Moq;
+
+namespace SpaceBattle.Tests
 {
-    public class PlayersShipFinderTests
+    public class PlayersShipFindStrategyTest
     {
         [Fact]
-        public void Execute_ShouldReturnShips_WhenUserHasShips()
+        public void Find_ShouldReturnPlayerShips_WhenPlayerExists()
         {
             // Arrange
-            var ships = new Dictionary<string, string>
-            {
-                { "ship1", "user1" },
-                { "ship2", "user2" },
-                { "ship3", "user1" }
-            };
+            new InitCommand().Execute();
+            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var shipFinder = new PlayersShipFinder(ships);
-            var userId = "user1";
+            var playerId = "player1";
+            var expectedShips = new List<object> { new object(), new object() };
+
+            var mockPlayer = new Mock<IDictionary<string, object>>();
+            mockPlayer.Setup(p => p["ownShips"]).Returns(expectedShips);
+
+            var mockPlayers = new Mock<IDictionary<string, IDictionary<string, object>>>();
+            mockPlayers.Setup(p => p[playerId]).Returns(mockPlayer.Object);
+
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Players.GetAll", (object[] args) => mockPlayers.Object).Execute();
+
+            var strategy = new PlayersShipFindStrategy(playerId);
 
             // Act
-            var result = shipFinder.Execute(userId);
+            var result = strategy.Find();
 
             // Assert
-            Assert.Equal(2, result.Count());
-            Assert.Contains("ship1", result);
-            Assert.Contains("ship3", result);
+            Assert.Equal(expectedShips, result);
         }
 
         [Fact]
-        public void Execute_ShouldReturnEmptyList_WhenUserHasNoShips()
+        public void Find_ShouldThrowException_WhenPlayerDoesNotExist()
         {
             // Arrange
-            var ships = new Dictionary<string, string>
-            {
-                { "ship1", "user1" },
-                { "ship2", "user2" }
-            };
+            new InitCommand().Execute();
+            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var shipFinder = new PlayersShipFinder(ships);
-            var userId = "user3";
+            var playerId = "nonExistentPlayer";
 
-            // Act
-            var result = shipFinder.Execute(userId);
+            var mockPlayers = new Mock<IDictionary<string, IDictionary<string, object>>>();
+            mockPlayers.Setup(p => p[playerId]).Throws<KeyNotFoundException>();
 
-            // Assert
-            Assert.Empty(result);
-        }
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Players.GetAll", (object[] args) => mockPlayers.Object).Execute();
 
-        [Fact]
-        public void Execute_ShouldThrowException_WhenUserIdIsNull()
-        {
-            // Arrange
-            var ships = new Dictionary<string, string>
-            {
-                { "ship1", "user1" }
-            };
-
-            var shipFinder = new PlayersShipFinder(ships);
+            var strategy = new PlayersShipFindStrategy(playerId);
 
             // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => shipFinder.Execute(null!));
-            Assert.Equal("userId", exception.ParamName);
+            Assert.Throws<KeyNotFoundException>(() => strategy.Find());
         }
 
         [Fact]
-        public void Constructor_ShouldThrowException_WhenShipsIsNull()
+        public void Find_ShouldThrowException_WhenPlayerHasNoShips()
         {
             // Arrange
-            IDictionary<string, string>? nullShips = null;
+            new InitCommand().Execute();
+            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+
+            var playerId = "player1";
+
+            var mockPlayer = new Mock<IDictionary<string, object>>();
+            mockPlayer.Setup(p => p["ownShips"]).Throws<KeyNotFoundException>();
+
+            var mockPlayers = new Mock<IDictionary<string, IDictionary<string, object>>>();
+            mockPlayers.Setup(p => p[playerId]).Returns(mockPlayer.Object);
+
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Players.GetAll", (object[] args) => mockPlayers.Object).Execute();
+
+            var strategy = new PlayersShipFindStrategy(playerId);
 
             // Act & Assert
-            var exception = Assert.Throws<ArgumentNullException>(() => new PlayersShipFinder(nullShips!));
-            Assert.Equal("ships", exception.ParamName);
+            Assert.Throws<KeyNotFoundException>(() => strategy.Find());
         }
     }
 }

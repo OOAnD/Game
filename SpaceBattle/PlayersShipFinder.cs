@@ -1,11 +1,15 @@
-﻿namespace SpaceBattle
+﻿using App;
+
+namespace SpaceBattle
 {
-    public class PlayersShipFinder(IDictionary<string, string> ships)
+    public class PlayersShipFindStrategy(string playerId)
     {
-        private readonly IDictionary<string, string> _ships = ships ?? throw new ArgumentNullException(nameof(ships));
-        public IEnumerable<string> Execute(string? userId)
+        public IEnumerable<object> Find()
         {
-            return [.. _ships.Where(ship => ship.Value == (userId ?? throw new ArgumentNullException(nameof(userId), "Идентификатор пользователя не может быть null."))).Select(ship => ship.Key)];
+            var players = Ioc.Resolve<IDictionary<string, IDictionary<string, object>>>("Game.Players.GetAll");
+            var player = players[playerId];
+
+            return (IEnumerable<object>)player["ownShips"];
         }
     }
 }
