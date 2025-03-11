@@ -1,5 +1,5 @@
-﻿using App.Scopes;
-using App;
+﻿using App;
+using App.Scopes;
 using Moq;
 
 namespace SpaceBattle.Tests
@@ -10,7 +10,7 @@ namespace SpaceBattle.Tests
         public void Execute_RegistersNextCommandDependency()
         {
             // Arrange
-            new InitCommand().Execute(); 
+            new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
