@@ -119,5 +119,43 @@ namespace SpaceBattle.Tests
             var currentScope = Ioc.Resolve<object>("IoC.Scope.Current");
             Assert.Equal(oldScope, currentScope);
         }
+
+        [Fact]
+        public void Game_Execute_HandlesMultipleCommands()
+        {
+            // Arrange
+            var mockQueue = new Mock<IQueue>();
+            var mockCmd1 = new Mock<ICommand>();
+            var mockCmd2 = new Mock<ICommand>();
+            var mockCountable = mockQueue.As<IQueueCount>();
+
+            mockCountable.SetupSequence(m => m.Count())
+                        .Returns(2)
+                        .Returns(1)
+                        .Returns(0);
+
+            mockQueue.SetupSequence(q => q.Take())
+                     .Returns(mockCmd1.Object)
+                     .Returns(mockCmd2.Object);
+
+            Ioc.Resolve<ICommand>(
+                "IoC.Register",
+                "Game.Queue",
+                (object[] _) => mockQueue.Object).Execute();
+
+            var regShouldLoopRun = new RegisterIoCDependencyShouldLoopRun();
+            regShouldLoopRun.Execute();
+
+            var gameScope = Ioc.Resolve<object>("IoC.Scope.Create");
+            var game = new Game(gameScope);
+
+            // Act
+            game.Execute();
+
+            // Assert
+            mockCmd1.Verify(c => c.Execute(), Times.Once);
+            mockCmd2.Verify(c => c.Execute(), Times.Once);
+            mockQueue.Verify(q => q.Take(), Times.Exactly(2));
+        }
     }
 }

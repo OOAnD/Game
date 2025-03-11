@@ -35,5 +35,25 @@ namespace SpaceBattle.Tests
             // Assert
             Assert.False(result);
         }
+
+        [Fact]
+        public void ShouldLoopRun_ReturnsCorrectValue_WhenQueueCountChanges()
+        {
+            // Arrange
+            var mockQueueCount = new Mock<IQueueCount>();
+            mockQueueCount.SetupSequence(q => q.Count())
+                          .Returns(1)
+                          .Returns(0);
+
+            var gameLoop = new GameLoop(mockQueueCount.Object);
+
+            // Act
+            var result1 = gameLoop.ShouldLoopRun();
+            var result2 = gameLoop.ShouldLoopRun();
+
+            // Assert
+            Assert.True(result1);
+            Assert.False(result2);
+        }
     }
 }
