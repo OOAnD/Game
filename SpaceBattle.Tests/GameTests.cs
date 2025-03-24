@@ -14,67 +14,93 @@ namespace SpaceBattle.Tests
         }
 
         [Fact]
-        public void Execute_ShouldProcessCommandsInQueue()
+        public void Execute_ShouldProcessCommands()
         {
             // Arrange
-            var mockCommandQueue = new Mock<IQueue<ICommand>>();
+            var gameState = new GameState();
             var mockCommand = new Mock<ICommand>();
+            mockCommand.Setup(c => c.Execute()).Callback(() => gameState.Stop());
 
             Ioc.Resolve<ICommand>("IoC.Register", "Commands.TimeLimit", (object[] args) =>
             {
-                return new TimeLimitCommand((GameState)args[0], (int)args[1]);
+                return new Mock<ICommand>().Object;
             }).Execute();
 
-            mockCommandQueue.Setup(q => q.Take()).Returns(mockCommand.Object);
-            var game = new Game(mockCommandQueue.Object);
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Scheduler.Next", (object[] args) =>
+            {
+                return (Func<ICommand>)(() => mockCommand.Object);
+            }).Execute();
+
+            var game = new Game(gameState);
 
             // Act
             game.Execute();
 
             // Assert
-            mockCommandQueue.Verify(q => q.Take(), Times.AtLeastOnce);
-            mockCommand.Verify(c => c.Execute(), Times.AtLeastOnce);
+            mockCommand.Verify(c => c.Execute(), Times.Once);
         }
 
         [Fact]
-        public void Execute_ShouldThrows_WhenCommandThrowException()
+        public void Execute_ShouldHandleException_WhenCommandThrowsException()
         {
             // Arrange
-            var mockCommandQueue = new Mock<IQueue<ICommand>>();
+            var gameState = new GameState();
             var mockCommand = new Mock<ICommand>();
-            var errorHandlerCommand = new Mock<ICommand>();
+            var mockErrorHandler = new Mock<ICommand>();
+
+            mockCommand.Setup(c => c.Execute()).Throws(new Exception("Test exception"));
+            mockErrorHandler.Setup(e => e.Execute()).Callback(() => gameState.Stop());
 
             Ioc.Resolve<ICommand>("IoC.Register", "ErrorHandler", (object[] args) =>
             {
-                return errorHandlerCommand.Object;
+                return mockErrorHandler.Object;
             }).Execute();
 
-            mockCommandQueue.Setup(q => q.Take()).Returns(mockCommand.Object);
-            mockCommand.Setup(c => c.Execute()).Throws(new Exception());
-            var game = new Game(mockCommandQueue.Object);
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Scheduler.Next", (object[] args) =>
+            {
+                return (Func<ICommand>)(() => mockCommand.Object);
+            }).Execute();
+
+            Ioc.Resolve<ICommand>("IoC.Register", "Commands.TimeLimit", (object[] args) =>
+            {
+                return new Mock<ICommand>().Object;
+            }).Execute();
+
+            var game = new Game(gameState);
 
             // Act
             game.Execute();
 
             // Assert
-            errorHandlerCommand.Verify(c => c.Execute(), Times.AtLeastOnce);
+            mockErrorHandler.Verify(e => e.Execute(), Times.Once);
         }
 
         [Fact]
         public void Execute_ShouldStop_WhenTimeQuantumReached()
         {
             // Arrange
-            var mockCommandQueue = new Mock<IQueue<ICommand>>();
-            var mockCommand = new Mock<ICommand>();
+            var gameState = new GameState();
+            var mockTimeLimitCommand = new Mock<ICommand>();
+            mockTimeLimitCommand.Setup(c => c.Execute()).Callback(() => gameState.Stop());
 
-            mockCommandQueue.Setup(q => q.Take()).Returns(mockCommand.Object);
-            var game = new Game(mockCommandQueue.Object);
+            Ioc.Resolve<ICommand>("IoC.Register", "Commands.TimeLimit", (object[] args) =>
+            {
+                return mockTimeLimitCommand.Object;
+            }).Execute();
+
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Scheduler.Next", (object[] args) =>
+            {
+                return (Func<ICommand>)(() => new Mock<ICommand>().Object);
+            }).Execute();
+
+            var game = new Game(gameState);
 
             // Act
             game.Execute();
 
             // Assert
-            mockCommandQueue.Verify(q => q.Take(), Times.AtLeastOnce);
+            mockTimeLimitCommand.Verify(c => c.Execute(), Times.AtLeastOnce);
+            Assert.False(gameState.IsRunning());
         }
     }
 }

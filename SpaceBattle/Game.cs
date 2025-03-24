@@ -4,26 +4,25 @@ namespace SpaceBattle
 {
     public class Game : ICommand
     {
-        private readonly IQueue<ICommand> _commandQueue;
         private readonly GameState _gameState;
         private const int TimeQuantum = 100;
 
-        public Game(IQueue<ICommand> commandQueue)
+        public Game(GameState gameState)
         {
-            _commandQueue = commandQueue;
-            _gameState = new GameState();
+            _gameState = gameState;
         }
 
         public void Execute()
         {
             var timeLimitCommand = Ioc.Resolve<ICommand>("Commands.TimeLimit", _gameState, TimeQuantum);
+            var nextCommand = Ioc.Resolve<Func<ICommand>>("Game.Scheduler.Next");
 
             while (_gameState.IsRunning())
             {
                 timeLimitCommand.Execute();
-                var command = _commandQueue.Take();
                 try
                 {
+                    var command = nextCommand();
                     command.Execute();
                 }
                 catch (Exception ex)
