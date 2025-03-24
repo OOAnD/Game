@@ -28,7 +28,7 @@ namespace SpaceBattle.Tests
             Assert.IsType<SaveGameObjectCommand>(saveCommand);
 
             var removeCommand = Ioc.Resolve<ICommand>("Commands.GameObject.Remove", gameObject);
-            Assert.IsType<RemoveGameObjectCommand>(removeCommand);
+            Assert.IsType<RemoveGameObject>(removeCommand);
 
             var findStrategy = Ioc.Resolve<object>("Strategies.Find.GameObject", "obj1");
             Assert.IsType<FindGameObjectStrategy>(findStrategy);
