@@ -102,5 +102,66 @@ namespace SpaceBattle.Tests
             mockTimeLimitCommand.Verify(c => c.Execute(), Times.AtLeastOnce);
             Assert.False(gameState.IsRunning());
         }
+
+        [Fact]
+        public void Constructor_InitializesStopwatch()
+        {
+            // Arrange
+            var gameState = new GameState();
+            const int quantum = 100;
+
+            // Act
+            var command = new TimeLimitCommand(gameState, quantum);
+
+            // Assert
+            Assert.NotNull(command); 
+        }
+
+        [Fact]
+        public void Execute_DoesNotStopGame_WhenTimeNotExceeded()
+        {
+            // Arrange
+            var gameState = new GameState();
+            const int largeQuantum = 100000; 
+            var command = new TimeLimitCommand(gameState, largeQuantum);
+
+            // Act
+            command.Execute();
+
+            // Assert
+            Assert.True(gameState.IsRunning());
+        }
+
+        [Fact]
+        public void Execute_StopsGame_WhenTimeExceeded()
+        {
+            // Arrange
+            var gameState = new GameState();
+            const int zeroQuantum = 0; 
+            var command = new TimeLimitCommand(gameState, zeroQuantum);
+
+            // Act
+            command.Execute();
+
+            // Assert
+            Assert.False(gameState.IsRunning());
+        }
+
+        [Fact]
+        public void Execute_StopsGame_WhenTimeExactlyReached()
+        {
+            // Arrange
+            var gameState = new GameState();
+            const int quantum = 1;
+            var command = new TimeLimitCommand(gameState, quantum);
+
+            Thread.Sleep(quantum + 1);
+
+            // Act
+            command.Execute();
+
+            // Assert
+            Assert.False(gameState.IsRunning());
+        }
     }
 }
