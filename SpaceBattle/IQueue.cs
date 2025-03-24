@@ -1,10 +1,7 @@
-﻿using App;
-
-namespace SpaceBattle
+﻿namespace SpaceBattle
 {
-    public interface IQueue
+    public interface IQueue<T>
     {
-        void Add(ICommand command);
-        ICommand Take();
+        T Take();
     }
 }

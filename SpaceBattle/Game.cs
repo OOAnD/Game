@@ -4,40 +4,33 @@ namespace SpaceBattle
 {
     public class Game : ICommand
     {
-        private readonly object _gameScope;
+        private readonly IQueue<ICommand> _commandQueue;
+        private readonly GameState _gameState;
+        private const int TimeQuantum = 100;
 
-        public Game(object gameScope)
+        public Game(IQueue<ICommand> commandQueue)
         {
-            var oldScope = Ioc.Resolve<object>("IoC.Scope.Current");
-            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", gameScope).Execute();
-            var regNextCommand = new RegisterIoCDependencyNextCommand();
-            regNextCommand.Execute();
-            var regShouldLoopRun = new RegisterIoCDependencyShouldLoopRun();
-            regShouldLoopRun.Execute();
-
-            _gameScope = gameScope;
-            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", oldScope).Execute();
+            _commandQueue = commandQueue;
+            _gameState = new GameState();
         }
 
         public void Execute()
         {
-            var oldScope = Ioc.Resolve<object>("IoC.Scope.Current");
-            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", _gameScope).Execute();
+            var timeLimitCommand = Ioc.Resolve<ICommand>("Commands.TimeLimit", _gameState, TimeQuantum);
 
-            while (Ioc.Resolve<bool>("Game.ShouldLoopRun"))
+            while (_gameState.IsRunning())
             {
-                var cmd = Ioc.Resolve<ICommand>("Commands.GetNextCommand");
+                timeLimitCommand.Execute();
+                var command = _commandQueue.Take();
                 try
                 {
-                    cmd.Execute();
+                    command.Execute();
                 }
-                catch (Exception exception)
+                catch (Exception ex)
                 {
-                    Console.WriteLine($"Exception: {exception.Message}");
+                    Ioc.Resolve<ICommand>("ErrorHandler", ex).Execute();
                 }
             }
-
-            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", oldScope).Execute();
         }
     }
 }

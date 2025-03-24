@@ -14,148 +14,67 @@ namespace SpaceBattle.Tests
         }
 
         [Fact]
-        public void Game_Execute_ShouldRunLoopUntilQueueIsEmpty()
+        public void Execute_ShouldProcessCommandsInQueue()
         {
             // Arrange
-            var mockQueue = new Mock<IQueue>();
-            var mockCmd = new Mock<ICommand>();
-            var mockCountable = mockQueue.As<IQueueCount>();
+            var mockCommandQueue = new Mock<IQueue<ICommand>>();
+            var mockCommand = new Mock<ICommand>();
 
-            mockCountable.Setup(m => m.Count()).Returns(1);
-            mockQueue.Setup(q => q.Take())
-                     .Returns(mockCmd.Object)
-                     .Callback(() =>
-                     {
-                         mockCountable.Setup(m => m.Count()).Returns(0);
-                     });
+            Ioc.Resolve<ICommand>("IoC.Register", "Commands.TimeLimit", (object[] args) =>
+            {
+                return new TimeLimitCommand((GameState)args[0], (int)args[1]);
+            }).Execute();
 
-            Ioc.Resolve<ICommand>(
-                "IoC.Register",
-                "Game.Queue",
-                (object[] _) => mockQueue.Object).Execute();
-
-            var regShouldLoopRun = new RegisterIoCDependencyShouldLoopRun();
-            regShouldLoopRun.Execute();
-
-            var gameScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            var game = new Game(gameScope);
+            mockCommandQueue.Setup(q => q.Take()).Returns(mockCommand.Object);
+            var game = new Game(mockCommandQueue.Object);
 
             // Act
             game.Execute();
 
             // Assert
-            mockCmd.Verify(c => c.Execute(), Times.Once);
-            mockQueue.Verify(q => q.Take(), Times.Once);
+            mockCommandQueue.Verify(q => q.Take(), Times.AtLeastOnce);
+            mockCommand.Verify(c => c.Execute(), Times.AtLeastOnce);
         }
 
         [Fact]
-        public void Game_Execute_ShouldHandleExceptions()
+        public void Execute_ShouldThrows_WhenCommandThrowException()
         {
             // Arrange
-            var mockQueue = new Mock<IQueue>();
-            var mockCmd = new Mock<ICommand>();
-            var mockCountable = mockQueue.As<IQueueCount>();
+            var mockCommandQueue = new Mock<IQueue<ICommand>>();
+            var mockCommand = new Mock<ICommand>();
+            var errorHandlerCommand = new Mock<ICommand>();
 
-            mockCmd.Setup(cmd => cmd.Execute()).Throws(new Exception("Command execution failed"));
-            mockCountable.Setup(m => m.Count()).Returns(1);
-            mockQueue.Setup(q => q.Take())
-                     .Returns(mockCmd.Object)
-                     .Callback(() =>
-                     {
-                         mockCountable.Setup(m => m.Count()).Returns(0);
-                     });
+            Ioc.Resolve<ICommand>("IoC.Register", "ErrorHandler", (object[] args) =>
+            {
+                return errorHandlerCommand.Object;
+            }).Execute();
 
-            Ioc.Resolve<ICommand>(
-                "IoC.Register",
-                "Game.Queue",
-                (object[] _) => mockQueue.Object).Execute();
-
-            var regShouldLoopRun = new RegisterIoCDependencyShouldLoopRun();
-            regShouldLoopRun.Execute();
-
-            var gameScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            var game = new Game(gameScope);
+            mockCommandQueue.Setup(q => q.Take()).Returns(mockCommand.Object);
+            mockCommand.Setup(c => c.Execute()).Throws(new Exception());
+            var game = new Game(mockCommandQueue.Object);
 
             // Act
             game.Execute();
 
             // Assert
-            mockCmd.Verify(c => c.Execute(), Times.Once);
-            mockQueue.Verify(q => q.Take(), Times.Once);
+            errorHandlerCommand.Verify(c => c.Execute(), Times.AtLeastOnce);
         }
 
         [Fact]
-        public void Game_Execute_ShouldRestoreOldScope()
+        public void Execute_ShouldStop_WhenTimeQuantumReached()
         {
             // Arrange
-            var mockQueue = new Mock<IQueue>();
-            var mockCmd = new Mock<ICommand>();
-            var mockCountable = mockQueue.As<IQueueCount>();
+            var mockCommandQueue = new Mock<IQueue<ICommand>>();
+            var mockCommand = new Mock<ICommand>();
 
-            mockCountable.Setup(m => m.Count()).Returns(1);
-            mockQueue.Setup(q => q.Take())
-                     .Returns(mockCmd.Object)
-                     .Callback(() =>
-                     {
-                         mockCountable.Setup(m => m.Count()).Returns(0);
-                     });
-
-            Ioc.Resolve<ICommand>(
-                "IoC.Register",
-                "Game.Queue",
-                (object[] _) => mockQueue.Object).Execute();
-
-            var regShouldLoopRun = new RegisterIoCDependencyShouldLoopRun();
-            regShouldLoopRun.Execute();
-
-            var oldScope = Ioc.Resolve<object>("IoC.Scope.Current");
-            var gameScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            var game = new Game(gameScope);
+            mockCommandQueue.Setup(q => q.Take()).Returns(mockCommand.Object);
+            var game = new Game(mockCommandQueue.Object);
 
             // Act
             game.Execute();
 
             // Assert
-            var currentScope = Ioc.Resolve<object>("IoC.Scope.Current");
-            Assert.Equal(oldScope, currentScope);
-        }
-
-        [Fact]
-        public void Game_Execute_HandlesMultipleCommands()
-        {
-            // Arrange
-            var mockQueue = new Mock<IQueue>();
-            var mockCmd1 = new Mock<ICommand>();
-            var mockCmd2 = new Mock<ICommand>();
-            var mockCountable = mockQueue.As<IQueueCount>();
-
-            mockCountable.SetupSequence(m => m.Count())
-                        .Returns(2)
-                        .Returns(1)
-                        .Returns(0);
-
-            mockQueue.SetupSequence(q => q.Take())
-                     .Returns(mockCmd1.Object)
-                     .Returns(mockCmd2.Object);
-
-            Ioc.Resolve<ICommand>(
-                "IoC.Register",
-                "Game.Queue",
-                (object[] _) => mockQueue.Object).Execute();
-
-            var regShouldLoopRun = new RegisterIoCDependencyShouldLoopRun();
-            regShouldLoopRun.Execute();
-
-            var gameScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            var game = new Game(gameScope);
-
-            // Act
-            game.Execute();
-
-            // Assert
-            mockCmd1.Verify(c => c.Execute(), Times.Once);
-            mockCmd2.Verify(c => c.Execute(), Times.Once);
-            mockQueue.Verify(q => q.Take(), Times.Exactly(2));
+            mockCommandQueue.Verify(q => q.Take(), Times.AtLeastOnce);
         }
     }
 }
