@@ -114,7 +114,7 @@ namespace SpaceBattle.Tests
             var command = new TimeLimitCommand(gameState, quantum);
 
             // Assert
-            Assert.NotNull(command); 
+            Assert.NotNull(command);
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace SpaceBattle.Tests
         {
             // Arrange
             var gameState = new GameState();
-            const int largeQuantum = 100000; 
+            const int largeQuantum = 100000;
             var command = new TimeLimitCommand(gameState, largeQuantum);
 
             // Act
@@ -137,7 +137,7 @@ namespace SpaceBattle.Tests
         {
             // Arrange
             var gameState = new GameState();
-            const int zeroQuantum = 0; 
+            const int zeroQuantum = 0;
             var command = new TimeLimitCommand(gameState, zeroQuantum);
 
             // Act
