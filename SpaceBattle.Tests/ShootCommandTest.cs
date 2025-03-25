@@ -7,121 +7,97 @@ namespace SpaceBattle.Tests
     public class ShootCommandTest
     {
         [Fact]
-        public void Execute_ShoulCorrectShoot()
+        public void Execute_ShouldPerformShootSequenceCorrectly()
         {
             // Arrange
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var authCommand = new Mock<ICommand>();
-            var gameObject = new Mock<object>();
-            var torpedo = new Mock<object>();
-            var saveGameObjectCommand = new Mock<ICommand>();
-            var startMoveCommand = new Mock<ICommand>();
-            var confMovingObjectCommand = new Mock<ICommand>();
-
-            var playerId = new object();
             var gameObjectId = new object();
+            var shootingObject = new Mock<object>();
+            var torpedo = new Mock<object>();
+            var moveConfigCommand = new Mock<ICommand>();
+            var startMoveCommand = new Mock<ICommand>();
 
-            // Настроить все зависимости айока
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.ShootAuth", (object[] args) => authCommand.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", (object[] args) => gameObject.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Create", (object[] args) => torpedo.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Save", (object[] args) => saveGameObjectCommand.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Actions.Start", (object[] args) => startMoveCommand.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider", (object[] args) => confMovingObjectCommand.Object).Execute();
+            // Register dependencies
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", 
+                (Func<object[], object>)(args => shootingObject.Object)).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve", 
+                (Func<object[], object>)(args => torpedo.Object)).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider", 
+                (Func<object[], ICommand>)(args => moveConfigCommand.Object)).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Actions.Start", 
+                (Func<object[], ICommand>)(args => startMoveCommand.Object)).Execute();
 
-            var shootCommand = new ShootCommand(playerId, gameObjectId);
+            var shootCommand = new ShootCommand(gameObjectId);
 
             // Act
             shootCommand.Execute();
 
             // Assert
-            authCommand.Verify(c => c.Execute(), Times.Once);
-            confMovingObjectCommand.Verify(m => m.Execute(), Times.Once);
-            saveGameObjectCommand.Verify(s => s.Execute(), Times.Once);
-            startMoveCommand.Verify(s => s.Execute(), Times.Once);
+            moveConfigCommand.Verify(cmd => cmd.Execute(), Times.Once);
+            startMoveCommand.Verify(cmd => cmd.Execute(), Times.Once);
         }
 
         [Fact]
-        public void Execute_ShouldThrowWhenCreateTorpedoFails()
+        public void Execute_ShouldThrowWhenGetGameObjectFails()
         {
             // Arrange
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var authCommand = new Mock<ICommand>();
-            var gameObject = new Mock<object>();
-            var torpedo = new Mock<object>();
-            torpedo.Setup(t => t.ToString()).Throws<InvalidOperationException>();
-
-            var playerId = new object();
             var gameObjectId = new object();
 
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.ShootAuth", (object[] args) => authCommand.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", (object[] args) => gameObject.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Create", (object[] args) => torpedo.Object).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", 
+                (Func<object[], object>)(args => throw new InvalidOperationException())).Execute();
 
-            var shootCommand = new ShootCommand(playerId, gameObjectId);
+            var shootCommand = new ShootCommand(gameObjectId);
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => shootCommand.Execute());
         }
 
         [Fact]
-        public void Execute_ShouldThrowWhenConfMovingObjectFails()
+        public void Execute_ShouldThrowWhenTorpedoResolveFails()
         {
             // Arrange
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var authCommand = new Mock<ICommand>();
-            var gameObject = new Mock<object>();
-            var torpedo = new Mock<object>();
-            var confMovingObjectCommand = new Mock<ICommand>();
-            confMovingObjectCommand.Setup(c => c.Execute()).Throws<InvalidOperationException>();
-
-            var playerId = new object();
             var gameObjectId = new object();
 
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.ShootAuth", (object[] args) => authCommand.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", (object[] args) => gameObject.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Create", (object[] args) => torpedo.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider", (object[] args) => confMovingObjectCommand.Object).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", 
+                (Func<object[], object>)(args => new object())).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve", 
+                (Func<object[], object>)(args => throw new InvalidOperationException())).Execute();
 
-            var shootCommand = new ShootCommand(playerId, gameObjectId);
+            var shootCommand = new ShootCommand(gameObjectId);
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => shootCommand.Execute());
         }
 
         [Fact]
-        public void Execute_ShouldThrowWhenSaveGameObjectFails()
+        public void Execute_ShouldThrowWhenMoveConfigFails()
         {
             // Arrange
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var authCommand = new Mock<ICommand>();
-            var gameObject = new Mock<object>();
-            var torpedo = new Mock<object>();
-            var saveGameObjectCommand = new Mock<ICommand>();
-            saveGameObjectCommand.Setup(c => c.Execute()).Throws<InvalidOperationException>();
-
-            var playerId = new object();
             var gameObjectId = new object();
 
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.ShootAuth", (object[] args) => authCommand.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", (object[] args) => gameObject.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Create", (object[] args) => torpedo.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider", (object[] args) => new Mock<ICommand>().Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Save", (object[] args) => saveGameObjectCommand.Object).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", 
+                (Func<object[], object>)(args => new object())).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve", 
+                (Func<object[], object>)(args => new object())).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider", 
+                (Func<object[], ICommand>)(args => throw new InvalidOperationException())).Execute();
 
-            var shootCommand = new ShootCommand(playerId, gameObjectId);
+            var shootCommand = new ShootCommand(gameObjectId);
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => shootCommand.Execute());
@@ -135,23 +111,18 @@ namespace SpaceBattle.Tests
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var authCommand = new Mock<ICommand>();
-            var gameObject = new Mock<object>();
-            var torpedo = new Mock<object>();
-            var startMoveCommand = new Mock<ICommand>();
-            startMoveCommand.Setup(c => c.Execute()).Throws<InvalidOperationException>();
-
-            var playerId = new object();
             var gameObjectId = new object();
 
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.ShootAuth", (object[] args) => authCommand.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", (object[] args) => gameObject.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Create", (object[] args) => torpedo.Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider", (object[] args) => new Mock<ICommand>().Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Save", (object[] args) => new Mock<ICommand>().Object).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Actions.Start", (object[] args) => startMoveCommand.Object).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", 
+                (Func<object[], object>)(args => new object())).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve", 
+                (Func<object[], object>)(args => new object())).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider", 
+                (Func<object[], ICommand>)(args => new Mock<ICommand>().Object)).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Actions.Start", 
+                (Func<object[], ICommand>)(args => throw new InvalidOperationException())).Execute();
 
-            var shootCommand = new ShootCommand(playerId, gameObjectId);
+            var shootCommand = new ShootCommand(gameObjectId);
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => shootCommand.Execute());
