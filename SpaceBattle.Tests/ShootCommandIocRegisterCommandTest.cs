@@ -1,4 +1,4 @@
-using App;
+﻿using App;
 using App.Scopes;
 
 namespace SpaceBattle.Tests
@@ -19,7 +19,7 @@ namespace SpaceBattle.Tests
             // Act
             var registerCommand = new ShootCommandIocRegisterCommand();
             registerCommand.Execute();
-            
+
             var resolvedCommand = Ioc.Resolve<ICommand>("Commands.Shoot", playerId, gameObjectId);
 
             // Assert

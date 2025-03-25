@@ -1,4 +1,4 @@
-using App;
+﻿using App;
 
 namespace SpaceBattle
 {
@@ -7,8 +7,8 @@ namespace SpaceBattle
         public void Execute()
         {
             Ioc.Resolve<ICommand>(
-                "IoC.Register", 
-                "Commands.Shoot", 
+                "IoC.Register",
+                "Commands.Shoot",
                 (object[] args) => new ShootCommand(args[0])
             ).Execute();
         }

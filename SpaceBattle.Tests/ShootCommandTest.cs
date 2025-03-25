@@ -21,13 +21,13 @@ namespace SpaceBattle.Tests
             var startMoveCommand = new Mock<ICommand>();
 
             // Register dependencies
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get",
                 (Func<object[], object>)(args => shootingObject.Object)).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve",
                 (Func<object[], object>)(args => torpedo.Object)).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider",
                 (Func<object[], ICommand>)(args => moveConfigCommand.Object)).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Actions.Start", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Actions.Start",
                 (Func<object[], ICommand>)(args => startMoveCommand.Object)).Execute();
 
             var shootCommand = new ShootCommand(gameObjectId);
@@ -50,7 +50,7 @@ namespace SpaceBattle.Tests
 
             var gameObjectId = new object();
 
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get",
                 (Func<object[], object>)(args => throw new InvalidOperationException())).Execute();
 
             var shootCommand = new ShootCommand(gameObjectId);
@@ -69,9 +69,9 @@ namespace SpaceBattle.Tests
 
             var gameObjectId = new object();
 
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get",
                 (Func<object[], object>)(args => new object())).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve",
                 (Func<object[], object>)(args => throw new InvalidOperationException())).Execute();
 
             var shootCommand = new ShootCommand(gameObjectId);
@@ -90,11 +90,11 @@ namespace SpaceBattle.Tests
 
             var gameObjectId = new object();
 
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get",
                 (Func<object[], object>)(args => new object())).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve",
                 (Func<object[], object>)(args => new object())).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider",
                 (Func<object[], ICommand>)(args => throw new InvalidOperationException())).Execute();
 
             var shootCommand = new ShootCommand(gameObjectId);
@@ -113,13 +113,13 @@ namespace SpaceBattle.Tests
 
             var gameObjectId = new object();
 
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Get",
                 (Func<object[], object>)(args => new object())).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.Torpedo.Resolve",
                 (Func<object[], object>)(args => new object())).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Configuration.MovingObject.ByMoveConfProvider",
                 (Func<object[], ICommand>)(args => new Mock<ICommand>().Object)).Execute();
-            Ioc.Resolve<ICommand>("IoC.Register", "Actions.Start", 
+            Ioc.Resolve<ICommand>("IoC.Register", "Actions.Start",
                 (Func<object[], ICommand>)(args => throw new InvalidOperationException())).Execute();
 
             var shootCommand = new ShootCommand(gameObjectId);
