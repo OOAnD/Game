@@ -2,7 +2,7 @@
 
 namespace SpaceBattle
 {
-    public class RemoveGameObject(IDictionary<string, object> gameObject) : ICommand
+    public class RemoveGameObjectCommand(IDictionary<string, object> gameObject) : ICommand
     {
         public void Execute()
         {

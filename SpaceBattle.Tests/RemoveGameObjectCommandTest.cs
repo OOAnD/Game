@@ -3,7 +3,7 @@ using App.Scopes;
 
 namespace SpaceBattle.Tests
 {
-    public class RemoveGameObjectTest
+    public class RemoveGameObjectCommandTest
     {
         [Fact]
         public void Execute_ShouldRemoveGameObject_WhenObjectExists()
@@ -24,7 +24,7 @@ namespace SpaceBattle.Tests
             Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.GetAll",
                 (Func<object[], IDictionary<string, IDictionary<string, object>>>)(_ => objects)).Execute();
 
-            var command = new RemoveGameObject(gameObject);
+            var command = new RemoveGameObjectCommand(gameObject);
 
             // Act
             command.Execute();
@@ -49,7 +49,7 @@ namespace SpaceBattle.Tests
             Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.GetAll",
                 (Func<object[], IDictionary<string, IDictionary<string, object>>>)(_ => objects)).Execute();
 
-            var command = new RemoveGameObject(gameObject);
+            var command = new RemoveGameObjectCommand(gameObject);
 
             // Act
             command.Execute();
@@ -73,7 +73,7 @@ namespace SpaceBattle.Tests
             Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.GetAll",
                 (Func<object[], IDictionary<string, IDictionary<string, object>>>)(_ => objects)).Execute();
 
-            var command = new RemoveGameObject(gameObject);
+            var command = new RemoveGameObjectCommand(gameObject);
 
             // Act & Assert
             Assert.Throws<KeyNotFoundException>(() => command.Execute());
@@ -93,7 +93,7 @@ namespace SpaceBattle.Tests
             Ioc.Resolve<ICommand>("IoC.Register", "Game.Objects.GetAll",
                 (Func<object[], IDictionary<string, IDictionary<string, object>>?>)(_ => null)).Execute();
 
-            var command = new RemoveGameObject(gameObject);
+            var command = new RemoveGameObjectCommand(gameObject);
 
             // Act & Assert
             Assert.Throws<NullReferenceException>(() => command.Execute());
