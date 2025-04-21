@@ -6,162 +6,95 @@ namespace SpaceBattle.Tests
 {
     public class GameTests
     {
+        private readonly object _scope;
+        private readonly Mock<ICommand> _mockCommand1;
+        private readonly Mock<ICommand> _mockCommand2;
+        private readonly Mock<ICommand> _mockFailingCommand;
+        private readonly Mock<ICommand> _mockExceptionHandler;
+        private readonly Queue<ICommand> _commandQueue;
+        private ICommand? _currentCommand;
+
         public GameTests()
         {
             new InitCommand().Execute();
-            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+            _scope = Ioc.Resolve<object>("IoC.Scope.Create");
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", _scope).Execute();
+
+            _mockCommand1 = new Mock<ICommand>();
+            _mockCommand2 = new Mock<ICommand>();
+            _mockFailingCommand = new Mock<ICommand>();
+            _mockFailingCommand.Setup(c => c.Execute()).Throws<Exception>();
+            _mockExceptionHandler = new Mock<ICommand>();
+            _commandQueue = new Queue<ICommand>();
+
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Queue.Take", (object[] args) =>
+            {
+                _currentCommand = _commandQueue.Dequeue();
+                return _currentCommand;
+            }).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Queue.Current", (object[] args) => _currentCommand).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "Game.Queue.Count", (object[] args) => () => _commandQueue.Count).Execute();
+            Ioc.Resolve<ICommand>("IoC.Register", "ExceptionHandler", (object[] args) =>
+            {
+                var ex = (Exception)args[0];
+                var cmd = (ICommand)args[1];
+                return _mockExceptionHandler.Object;
+            }).Execute();
+
         }
 
         [Fact]
-        public void Execute_ShouldProcessCommands()
+        public void Execute_ProcessesAllCommandsWithinTimeLimit()
         {
             // Arrange
-            var gameState = new GameState();
-            var mockCommand = new Mock<ICommand>();
-            mockCommand.Setup(c => c.Execute()).Callback(() => gameState.Stop());
-
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.TimeLimit", (object[] args) =>
-            {
-                return new Mock<ICommand>().Object;
-            }).Execute();
-
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Scheduler.Next", (object[] args) =>
-            {
-                return (Func<ICommand>)(() => mockCommand.Object);
-            }).Execute();
-
-            var game = new Game(gameState);
+            Ioc.Resolve<ICommand>("IoC.Register", "Command.Time", (object[] args) => (object)TimeSpan.FromMilliseconds(500)).Execute();
+            _commandQueue.Enqueue(_mockCommand1.Object);
+            _commandQueue.Enqueue(_mockCommand2.Object);
 
             // Act
-            game.Execute();
+            new Game(_scope).Execute();
 
             // Assert
-            mockCommand.Verify(c => c.Execute(), Times.Once);
+            _mockCommand1.Verify(c => c.Execute(), Times.Once);
+            _mockCommand2.Verify(c => c.Execute(), Times.Once);
+            Assert.Empty(_commandQueue);
         }
 
         [Fact]
-        public void Execute_ShouldHandleException_WhenCommandThrowsException()
+        public void Execute_StopsWhenTimeLimitExceeded()
         {
             // Arrange
-            var gameState = new GameState();
-            var mockCommand = new Mock<ICommand>();
-            var mockErrorHandler = new Mock<ICommand>();
-
-            mockCommand.Setup(c => c.Execute()).Throws(new Exception("Test exception"));
-            mockErrorHandler.Setup(e => e.Execute()).Callback(() => gameState.Stop());
-
-            Ioc.Resolve<ICommand>("IoC.Register", "ErrorHandler", (object[] args) =>
-            {
-                return mockErrorHandler.Object;
-            }).Execute();
-
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Scheduler.Next", (object[] args) =>
-            {
-                return (Func<ICommand>)(() => mockCommand.Object);
-            }).Execute();
-
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.TimeLimit", (object[] args) =>
-            {
-                return new Mock<ICommand>().Object;
-            }).Execute();
-
-            var game = new Game(gameState);
+            Ioc.Resolve<ICommand>("IoC.Register", "Command.Time", (object[] args) => (object)TimeSpan.FromMilliseconds(-1)).Execute();
+            _commandQueue.Enqueue(_mockCommand1.Object);
 
             // Act
-            game.Execute();
+            new Game(_scope).Execute();
 
             // Assert
-            mockErrorHandler.Verify(e => e.Execute(), Times.Once);
+            _mockCommand1.Verify(c => c.Execute(), Times.Never);
+            Assert.Single(_commandQueue);
         }
 
         [Fact]
-        public void Execute_ShouldStop_WhenTimeQuantumReached()
+        public void Execute_HandlesExceptionsWithCurrentCommand()
         {
             // Arrange
-            var gameState = new GameState();
-            var mockTimeLimitCommand = new Mock<ICommand>();
-            mockTimeLimitCommand.Setup(c => c.Execute()).Callback(() => gameState.Stop());
-
-            Ioc.Resolve<ICommand>("IoC.Register", "Commands.TimeLimit", (object[] args) =>
-            {
-                return mockTimeLimitCommand.Object;
-            }).Execute();
-
-            Ioc.Resolve<ICommand>("IoC.Register", "Game.Scheduler.Next", (object[] args) =>
-            {
-                return (Func<ICommand>)(() => new Mock<ICommand>().Object);
-            }).Execute();
-
-            var game = new Game(gameState);
+            Ioc.Resolve<ICommand>("IoC.Register", "Command.Time", (object[] args) => (object)TimeSpan.FromMilliseconds(500)).Execute();
+            _commandQueue.Enqueue(_mockFailingCommand.Object);
 
             // Act
-            game.Execute();
+            new Game(_scope).Execute();
 
             // Assert
-            mockTimeLimitCommand.Verify(c => c.Execute(), Times.AtLeastOnce);
-            Assert.False(gameState.IsRunning());
-        }
+            _mockExceptionHandler.Verify(h =>
+                h.Execute(),
+                Times.Once                
+            );
 
-        [Fact]
-        public void Constructor_InitializesStopwatch()
-        {
-            // Arrange
-            var gameState = new GameState();
-            const int quantum = 100;
-
-            // Act
-            var command = new TimeLimitCommand(gameState, quantum);
-
-            // Assert
-            Assert.NotNull(command);
-        }
-
-        [Fact]
-        public void Execute_DoesNotStopGame_WhenTimeNotExceeded()
-        {
-            // Arrange
-            var gameState = new GameState();
-            const int largeQuantum = 100000;
-            var command = new TimeLimitCommand(gameState, largeQuantum);
-
-            // Act
-            command.Execute();
-
-            // Assert
-            Assert.True(gameState.IsRunning());
-        }
-
-        [Fact]
-        public void Execute_StopsGame_WhenTimeExceeded()
-        {
-            // Arrange
-            var gameState = new GameState();
-            const int zeroQuantum = 0;
-            var command = new TimeLimitCommand(gameState, zeroQuantum);
-
-            // Act
-            command.Execute();
-
-            // Assert
-            Assert.False(gameState.IsRunning());
-        }
-
-        [Fact]
-        public void Execute_StopsGame_WhenTimeExactlyReached()
-        {
-            // Arrange
-            var gameState = new GameState();
-            const int quantum = 1;
-            var command = new TimeLimitCommand(gameState, quantum);
-
-            Thread.Sleep(quantum + 1);
-
-            // Act
-            command.Execute();
-
-            // Assert
-            Assert.False(gameState.IsRunning());
+            _mockFailingCommand.Verify(c =>
+                c.Execute(),
+                Times.Once
+            );
         }
     }
 }

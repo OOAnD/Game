@@ -1,33 +1,41 @@
 ﻿using App;
+using System.Diagnostics;
 
 namespace SpaceBattle
 {
     public class Game : ICommand
     {
-        private readonly GameState _gameState;
-        private const int TimeQuantum = 100;
+        private readonly object _scope;
+        private readonly Stopwatch _stopwatch;
 
-        public Game(GameState gameState)
+        public Game(object scope)
         {
-            _gameState = gameState;
+            _scope = scope;
+            _stopwatch = new Stopwatch();
         }
 
         public void Execute()
         {
-            var timeLimitCommand = Ioc.Resolve<ICommand>("Commands.TimeLimit", _gameState, TimeQuantum);
-            var nextCommand = Ioc.Resolve<Func<ICommand>>("Game.Scheduler.Next");
+            _stopwatch.Reset();
+            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", _scope).Execute();
+            var commandTimeLimit = Ioc.Resolve<TimeSpan>("Command.Time");
 
-            while (_gameState.IsRunning())
+            while (Ioc.Resolve<Func<int>>("Game.Queue.Count")() > 0 && _stopwatch.Elapsed <= commandTimeLimit)
             {
-                timeLimitCommand.Execute();
                 try
                 {
-                    var command = nextCommand();
-                    command.Execute();
+                    _stopwatch.Start();
+                    var cmd = Ioc.Resolve<ICommand>("Game.Queue.Take");
+                    cmd.Execute();
                 }
                 catch (Exception ex)
                 {
-                    Ioc.Resolve<ICommand>("ErrorHandler", ex).Execute();
+                    var currentCmd = Ioc.Resolve<ICommand>("Game.Queue.Current");
+                    Ioc.Resolve<ICommand>("ExceptionHandler", ex, currentCmd).Execute();
+                }
+                finally
+                {
+                    _stopwatch.Stop();
                 }
             }
         }
