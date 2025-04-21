@@ -88,7 +88,7 @@ namespace SpaceBattle.Tests
             // Assert
             _mockExceptionHandler.Verify(h =>
                 h.Execute(),
-                Times.Once                
+                Times.Once
             );
 
             _mockFailingCommand.Verify(c =>
