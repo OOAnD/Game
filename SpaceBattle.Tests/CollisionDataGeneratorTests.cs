@@ -98,6 +98,45 @@ namespace SpaceBattle.Tests
         }
 
         [Fact]
+        public void Constructor_WithSeed_UsesProvidedSeed()
+        {
+            // Arrange
+            var outputDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            const int seed = 12345;
+
+            // Act
+            var generator1 = new CollisionDataGenerator(10, outputDir, seed);
+            var generator2 = new CollisionDataGenerator(10, outputDir, seed);
+
+            // Assert
+            var params1 = Enumerable.Range(0, 10).Select(_ => generator1.GenerateRandomParams()).ToList();
+            var params2 = Enumerable.Range(0, 10).Select(_ => generator2.GenerateRandomParams()).ToList();
+
+            Assert.Equal(params1, params2);
+
+            // Cleanup
+            Directory.Delete(outputDir, true);
+        }
+
+        [Fact]
+        public void RegisterIoCDependencyCollisionGenerator_RegistersWithoutSeed()
+        {
+            // Arrange
+            var registrator = new RegisterIoCDependencyCollisionGenerator();
+            registrator.Execute();
+
+            // Act
+            var generator = Ioc.Resolve<ICommand>(
+                "Collision.Generator",
+                10,
+                "test_dir"
+            );
+
+            // Assert
+            Assert.IsType<CollisionDataGenerator>(generator);
+        }
+
+        [Fact]
         public void RegisterIoCDependencyCollisionGenerator_RegistersGeneratorCorrectly()
         {
             // Arrange

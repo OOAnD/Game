@@ -42,7 +42,7 @@ namespace SpaceBattle
             SaveToFile(checker.GetType().Name, collisions);
         }
 
-        private (int x, int y, int vx, int vy) GenerateRandomParams()
+        public (int x, int y, int vx, int vy) GenerateRandomParams()
         {
             return (
                 _random.Next(-500, 500),
