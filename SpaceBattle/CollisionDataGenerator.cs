@@ -5,21 +5,22 @@ namespace SpaceBattle
     public class CollisionDataGenerator : ICommand
     {
         private readonly int _requiredSamples;
-        private readonly string _outputDirectory;
         private readonly Random _random;
+        private readonly int _gridSize;
+        private readonly List<string> _generatedCollisions;
 
-        public CollisionDataGenerator(int samples, string outputDir, int? seed = null)
+        public CollisionDataGenerator(int samples, int gridSize, int? seed = null)
         {
             _requiredSamples = samples;
-            _outputDirectory = outputDir;
+            _gridSize = gridSize;
             _random = seed.HasValue ? new Random(seed.Value) : new Random();
-
-            Directory.CreateDirectory(outputDir);
+            _generatedCollisions = new List<string>();
         }
 
         public void Execute()
         {
             var checkers = Ioc.Resolve<IEnumerable<ICollisionChecker>>("Collision.Checkers");
+            _generatedCollisions.Clear();
 
             foreach (var checker in checkers)
             {
@@ -29,33 +30,30 @@ namespace SpaceBattle
 
         private void GenerateCollisions(ICollisionChecker checker)
         {
-            var collisions = new List<string>();
-            while (collisions.Count < _requiredSamples)
+            var generated = 0;
+            while (generated < _requiredSamples)
             {
-                var (x, y, vx, vy) = GenerateRandomParams();
+                var (x, y, vx, vy) = GenerateScaledParams();
                 if (checker.IsCollision(x, y, vx, vy))
                 {
-                    collisions.Add($"{x},{y},{vx},{vy}");
+                    _generatedCollisions.Add($"{x},{y},{vx},{vy}");
+                    generated++;
                 }
             }
-
-            SaveToFile(checker.GetType().Name, collisions);
         }
 
-        public (int x, int y, int vx, int vy) GenerateRandomParams()
+        public (int x, int y, int vx, int vy) GenerateScaledParams()
         {
+            var positionRange = _gridSize * 2;
+            var velocityRange = _gridSize / 10;
+
             return (
-                _random.Next(-500, 500),
-                _random.Next(-500, 500),
-                _random.Next(-50, 50),
-                _random.Next(-50, 50)
+                _random.Next(-positionRange, positionRange + 1),
+                _random.Next(-positionRange, positionRange + 1),
+                _random.Next(-velocityRange, velocityRange + 1),
+                _random.Next(-velocityRange, velocityRange + 1)
             );
         }
-
-        private void SaveToFile(string checkerName, IEnumerable<string> data)
-        {
-            var filePath = Path.Combine(_outputDirectory, $"{checkerName}.collisions");
-            File.WriteAllLines(filePath, data);
-        }
+        public IEnumerable<string> GetGeneratedCollisions() => _generatedCollisions;
     }
 }
