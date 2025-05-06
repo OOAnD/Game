@@ -2,7 +2,7 @@
 
 namespace SpaceBattle
 {
-    public class GridPrecheckCommand(IMoving movingObject)
+    public class GridPrecheckCommand(IMoving movingObject) : ICommand
     {
         private readonly IMoving _movingObject = movingObject;
 
