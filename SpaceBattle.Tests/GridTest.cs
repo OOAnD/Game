@@ -1,4 +1,4 @@
-namespace SpaceBattle.Tests
+﻿namespace SpaceBattle.Tests
 {
     public class GridTests
     {
@@ -12,9 +12,10 @@ namespace SpaceBattle.Tests
         [InlineData(0, 0, 10, 10, false)]
         [InlineData(-5, -5, -8, -8, true)]
         [InlineData(-5, -5, -15, -5, false)]
+
         public void IsInOneCell_VariousCoordinates_ReturnsCorrectResult(
-            int x1, int y1, 
-            int x2, int y2, 
+            int x1, int y1,
+            int x2, int y2,
             bool expected)
         {
             // Arrange

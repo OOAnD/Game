@@ -1,4 +1,4 @@
-namespace SpaceBattle
+﻿namespace SpaceBattle
 {
     public class Grid(int xOffset, int yOffset, int cellWidth)
     {
@@ -10,7 +10,6 @@ namespace SpaceBattle
         {
             var cellX1 = (int)Math.Ceiling((obj1.Coordinates[0] - XOffset) / (double)CellWidth);
             var cellY1 = (int)Math.Ceiling((obj1.Coordinates[1] - YOffset) / (double)CellWidth);
-
             var cellX2 = (int)Math.Ceiling((obj2.Coordinates[0] - XOffset) / (double)CellWidth);
             var cellY2 = (int)Math.Ceiling((obj2.Coordinates[1] - YOffset) / (double)CellWidth);
 
