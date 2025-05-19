@@ -160,5 +160,41 @@ namespace SpaceBattle.Tests
             Assert.Equal(5, generator.RequiredSamples);
             Assert.Equal(10, generator.GridSize);
         }
+
+        [Fact]
+        public void RegisterGenerator_HandlesOptionalSeedParameter_WhenNotProvided()
+        {
+            // Arrange
+            new RegisterIoCDependencyCollisionGenerator().Execute();
+
+            // Act
+            var generator = Ioc.Resolve<CollisionDataGenerator>(
+                "Collision.Generator",
+                5,
+                10
+            );
+
+            // Assert
+            Assert.NotNull(generator);
+        }
+
+        [Fact]
+        public void RegisterGenerator_HandlesOptionalSeedParameter_WhenProvided()
+        {
+            // Arrange
+            new RegisterIoCDependencyCollisionGenerator().Execute();
+            const int testSeed = 123;
+
+            // Act
+            var generator = Ioc.Resolve<CollisionDataGenerator>(
+                "Collision.Generator",
+                5,
+                10,
+                testSeed
+            );
+
+            // Assert
+            Assert.NotNull(generator);
+        }
     }
 }
