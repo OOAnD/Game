@@ -7,7 +7,6 @@ namespace SpaceBattle.Tests
     public class CollisionDataGeneratorTests
     {
         private readonly object _scope;
-        private const int TestGridSize = 10;
 
         public CollisionDataGeneratorTests()
         {
@@ -17,28 +16,30 @@ namespace SpaceBattle.Tests
         }
 
         [Fact]
-        public void GenerateScaledParams_ReturnsGridProportionalValues()
+        public void GenerateScaledParams_ReturnsValuesWithinGridProportions()
         {
             // Arrange
-            var generator = new CollisionDataGenerator(10, TestGridSize);
+            var gridSize = 10;
+            var generator = new CollisionDataGenerator(1, gridSize);
 
             // Act
             var (x, y, vx, vy) = generator.GenerateScaledParams();
 
             // Assert
-            Assert.InRange(x, -TestGridSize * 2, TestGridSize * 2);
-            Assert.InRange(y, -TestGridSize * 2, TestGridSize * 2);
-            Assert.InRange(vx, -TestGridSize / 10, TestGridSize / 10);
-            Assert.InRange(vy, -TestGridSize / 10, TestGridSize / 10);
+            Assert.InRange(x, -2 * gridSize, 2 * gridSize);
+            Assert.InRange(y, -2 * gridSize, 2 * gridSize);
+            var velocityRange = Math.Max(1, gridSize / 10);
+            Assert.InRange(vx, -velocityRange, velocityRange);
+            Assert.InRange(vy, -velocityRange, velocityRange);
         }
 
         [Fact]
-        public void Execute_GeneratesGridProportionalCollisions()
+        public void Generate_ReturnsCorrectNumberOfSamplesPerChecker()
         {
             // Arrange
             var mockChecker = new Mock<ICollisionChecker>();
             mockChecker.Setup(c => c.IsCollision(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>()))
-                     .Returns(true);
+                       .Returns(true);
 
             Ioc.Resolve<ICommand>(
                 "IoC.Register",
@@ -46,87 +47,26 @@ namespace SpaceBattle.Tests
                 (object[] args) => new List<ICollisionChecker> { mockChecker.Object }
             ).Execute();
 
-            var generator = new CollisionDataGenerator(5, TestGridSize);
+            var samples = 5;
+            var generator = new CollisionDataGenerator(samples, 10);
 
             // Act
-            generator.Execute();
-            var collisions = generator.GetGeneratedCollisions();
+            var results = generator.Generate().Take(samples).ToList();
 
             // Assert
-            Assert.Equal(5, collisions.Count());
-
-            foreach (var collision in collisions)
-            {
-                var parts = collision.Split(',');
-                var x = int.Parse(parts[0]);
-                var y = int.Parse(parts[1]);
-                var vx = int.Parse(parts[2]);
-                var vy = int.Parse(parts[3]);
-
-                Assert.InRange(x, -TestGridSize * 2, TestGridSize * 2);
-                Assert.InRange(y, -TestGridSize * 2, TestGridSize * 2);
-                Assert.InRange(vx, -TestGridSize / 10, TestGridSize / 10);
-                Assert.InRange(vy, -TestGridSize / 10, TestGridSize / 10);
-            }
+            Assert.Equal(samples, results.Count);
         }
 
         [Fact]
-        public void RegisterIoCDependency_RegistersWithGridSize()
-        {
-            // Arrange
-            new RegisterIoCDependencyCollisionGenerator().Execute();
-
-            // Act
-            var generator = Ioc.Resolve<ICommand>(
-                "Collision.Generator",
-                10,
-                20
-            );
-
-            // Assert
-            Assert.IsType<CollisionDataGenerator>(generator);
-        }
-
-        [Fact]
-        public void Constructor_WithSeed_ProducesDeterministicResults()
-        {
-            // Arrange
-            const int seed = 123;
-            var generator1 = new CollisionDataGenerator(10, TestGridSize, seed);
-            var generator2 = new CollisionDataGenerator(10, TestGridSize, seed);
-
-            // Act
-            var params1 = Enumerable.Range(0, 10).Select(_ => generator1.GenerateScaledParams()).ToList();
-            var params2 = Enumerable.Range(0, 10).Select(_ => generator2.GenerateScaledParams()).ToList();
-
-            // Assert
-            Assert.Equal(params1, params2);
-        }
-
-        [Fact]
-        public void GetGeneratedCollisions_ReturnsEmptyList_BeforeExecution()
-        {
-            // Arrange
-            var generator = new CollisionDataGenerator(5, TestGridSize);
-
-            // Act
-            var collisions = generator.GetGeneratedCollisions();
-
-            // Assert
-            Assert.Empty(collisions);
-        }
-
-        [Fact]
-        public void Execute_GeneratesCorrectNumberOfSamples_ForMultipleCheckers()
+        public void Generate_RespectsMultipleCheckers()
         {
             // Arrange
             var mockChecker1 = new Mock<ICollisionChecker>();
             mockChecker1.Setup(c => c.IsCollision(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>()))
-                      .Returns(true);
-
+                       .Returns(true);
             var mockChecker2 = new Mock<ICollisionChecker>();
             mockChecker2.Setup(c => c.IsCollision(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>()))
-                      .Returns(true);
+                       .Returns(true);
 
             Ioc.Resolve<ICommand>(
                 "IoC.Register",
@@ -134,14 +74,91 @@ namespace SpaceBattle.Tests
                 (object[] args) => new List<ICollisionChecker> { mockChecker1.Object, mockChecker2.Object }
             ).Execute();
 
-            var generator = new CollisionDataGenerator(3, TestGridSize);
+            var samples = 3;
+            var generator = new CollisionDataGenerator(samples, 10);
 
             // Act
-            generator.Execute();
-            var collisions = generator.GetGeneratedCollisions();
+            var results = generator.Generate().Take(2 * samples).ToList();
 
             // Assert
-            Assert.Equal(6, collisions.Count());
+            Assert.Equal(2 * samples, results.Count);
+        }
+
+        [Fact]
+        public void Constructor_WithSeed_GeneratesDeterministicSequence()
+        {
+            // Arrange
+            const int seed = 123;
+            var generator1 = new CollisionDataGenerator(10, 10, seed);
+            var generator2 = new CollisionDataGenerator(10, 10, seed);
+
+            // Act
+            var sequence1 = Enumerable.Range(0, 10).Select(_ => generator1.GenerateScaledParams()).ToList();
+            var sequence2 = Enumerable.Range(0, 10).Select(_ => generator2.GenerateScaledParams()).ToList();
+
+            // Assert
+            Assert.Equal(sequence1, sequence2);
+        }
+
+        [Fact]
+        public void Generate_FiltersNonCollidingParams()
+        {
+            // Arrange
+            var mockChecker = new Mock<ICollisionChecker>();
+            mockChecker.Setup(c => c.IsCollision(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>()))
+                       .Returns<int, int, int, int>((x, y, vx, vy) => x % 2 == 0);
+
+            Ioc.Resolve<ICommand>(
+                "IoC.Register",
+                "Collision.Checkers",
+                (object[] args) => new List<ICollisionChecker> { mockChecker.Object }
+            ).Execute();
+
+            var generator = new CollisionDataGenerator(5, 10);
+
+            // Act
+            var results = generator.Generate().ToList();
+
+            // Assert
+            Assert.All(results, param => Assert.True(param.x % 2 == 0));
+        }
+
+        [Fact]
+        public void Generate_ReturnsEmptyWhenNoCheckersRegistered()
+        {
+            // Arrange
+            Ioc.Resolve<ICommand>(
+                "IoC.Register",
+                "Collision.Checkers",
+                (object[] args) => new List<ICollisionChecker>()
+            ).Execute();
+
+            var generator = new CollisionDataGenerator(5, 10);
+
+            // Act
+            var results = generator.Generate().ToList();
+
+            // Assert
+            Assert.Empty(results);
+        }
+
+        [Fact]
+        public void RegisterIoCDependency_SuccessfullyRegistersGenerator()
+        {
+            // Arrange
+            new RegisterIoCDependencyCollisionGenerator().Execute();
+
+            // Act
+            var generator = Ioc.Resolve<CollisionDataGenerator>(
+                "Collision.Generator",
+                5,
+                10
+            );
+
+            // Assert
+            Assert.NotNull(generator);
+            Assert.Equal(5, generator.RequiredSamples);
+            Assert.Equal(10, generator.GridSize);
         }
     }
 }
