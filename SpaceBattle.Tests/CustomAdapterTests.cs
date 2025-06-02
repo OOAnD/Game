@@ -1,4 +1,6 @@
-﻿namespace SpaceBattle.Tests
+﻿using System.Collections;
+
+namespace SpaceBattle.Tests
 {
     public class CustomAdapterTests
     {
@@ -307,6 +309,23 @@
             // Assert
             Assert.True(result);
             Assert.Equal("base_value", value);
+        }
+
+        [Fact]
+        public void NonGenericEnumerator_ShouldWork()
+        {
+            // Arrange
+            var adapter = new CustomAdapter(
+                new Dictionary<string, object> { ["test"] = "value" },
+                new Dictionary<string, Func<object>>());
+
+            // Act
+            var enumerator = ((IEnumerable)adapter).GetEnumerator();
+
+            // Assert
+            Assert.NotNull(enumerator);
+            Assert.True(enumerator.MoveNext());
+            Assert.False(enumerator.MoveNext());
         }
     }
 }
