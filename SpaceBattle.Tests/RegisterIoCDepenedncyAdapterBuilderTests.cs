@@ -1,6 +1,5 @@
 ﻿using App;
 using App.Scopes;
-using Moq;
 
 namespace SpaceBattle.Tests
 {
@@ -13,102 +12,71 @@ namespace SpaceBattle.Tests
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
-            var interfaceTypeMock = new Mock<Type>();
 
-            var mockAdapterCode = "public class MockAdapter {}";
+            var interfaceType = typeof(ITestInterface);
+            var obj = new Dictionary<string, object>();
+
             Ioc.Resolve<ICommand>(
                 "IoC.Register",
                 "Adapters.CodeGenerator",
-                (object[] args) => mockAdapterCode
+                (object[] args) => "public class TestAdapter { public TestAdapter(IDictionary<string, object> obj) {} }"
             ).Execute();
 
-            var mockAdapterType = typeof(MockAdapter);
             Ioc.Resolve<ICommand>(
                 "IoC.Register",
                 "Adapter.Compile",
-                (object[] args) => mockAdapterType
+                (object[] args) => typeof(TestAdapter)
             ).Execute();
 
-            var mockCustomBehaviorWrapper = new Dictionary<string, object>();
-            Ioc.Resolve<ICommand>(
-                "IoC.Register",
-                "CustomBehaviorWrapper",
-                (object[] args) => mockCustomBehaviorWrapper
-            ).Execute();
-
-            var registrator = new RegisterIoCDepenedncyAdapterBuilder();
+            var builder = new RegisterIoCDepenedncyAdapterBuilder();
 
             // Act
-            registrator.Execute();
+            builder.Execute();
 
             // Assert
-            var adapter = Ioc.Resolve<object>(
-                "Adapter.Instance",
-                interfaceTypeMock.Object,
-                new Dictionary<string, object>(),
-                new Dictionary<string, Func<object>>()
-            );
-
+            var adapter = Ioc.Resolve<object>("Adapter.Instance", interfaceType, obj);
             Assert.NotNull(adapter);
-            Assert.IsType<MockAdapter>(adapter);
+            Assert.IsType<TestAdapter>(adapter);
         }
 
         [Fact]
-        public void Execute_ShouldPassCorrectParametersToAdapterConstructor()
+        public void Execute_ShouldPassCorrectObjectToAdapterConstructor()
         {
             // Arrange
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
-            var interfaceTypeMock = new Mock<Type>();
 
-            var mockAdapterCode = "public class MockAdapter { public object Obj; public MockAdapter(object obj) { Obj = obj; } }";
+            var interfaceType = typeof(ITestInterface);
+            var expectedObj = new Dictionary<string, object> { ["test"] = "value" };
+
             Ioc.Resolve<ICommand>(
                 "IoC.Register",
                 "Adapters.CodeGenerator",
-                (object[] args) => mockAdapterCode
+                (object[] args) => "public class TestAdapter { public IDictionary<string, object> Obj; public TestAdapter(IDictionary<string, object> obj) { Obj = obj; } }"
             ).Execute();
 
-            var mockAdapterType = typeof(MockAdapter);
             Ioc.Resolve<ICommand>(
                 "IoC.Register",
                 "Adapter.Compile",
-                (object[] args) => mockAdapterType
+                (object[] args) => typeof(TestAdapter)
             ).Execute();
 
-            var expectedObj = new Dictionary<string, object>();
-            var customBehavior = new Dictionary<string, Func<object>>();
-            var mockCustomBehaviorWrapper = expectedObj;
-
-            Ioc.Resolve<ICommand>(
-                "IoC.Register",
-                "CustomBehaviorWrapper",
-                (object[] args) =>
-                {
-                    Assert.Same(expectedObj, args[0]);
-                    Assert.Same(customBehavior, args[1]);
-                    return mockCustomBehaviorWrapper;
-                }
-            ).Execute();
-
-            var registrator = new RegisterIoCDepenedncyAdapterBuilder();
-            registrator.Execute();
+            var builder = new RegisterIoCDepenedncyAdapterBuilder();
+            builder.Execute();
 
             // Act
-            var adapter = (MockAdapter)Ioc.Resolve<object>(
-                "Adapter.Instance",
-                interfaceTypeMock.Object,
-                expectedObj,
-                customBehavior
-            );
+            var adapter = (TestAdapter)Ioc.Resolve<object>("Adapter.Instance", interfaceType, expectedObj);
 
             // Assert
-            Assert.Same(mockCustomBehaviorWrapper, adapter._obj);
+            Assert.Same(expectedObj, adapter._obj);
         }
 
-        public class MockAdapter(object obj)
+        public interface ITestInterface { }
+
+        public class TestAdapter(IDictionary<string, object> obj)
         {
-            public object _obj = obj;
+            public IDictionary<string, object> _obj = obj;
         }
     }
 }
