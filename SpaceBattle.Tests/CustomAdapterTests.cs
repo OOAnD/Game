@@ -345,54 +345,58 @@ namespace SpaceBattle.Tests
         }
 
         [Fact]
-        public void SetValue_ShouldWork_ForNonBehaviorKey()
+        public void Remove_ShouldReturnTrue_WhenKeyExistsInSource()
         {
             // Arrange
-            var source = new Dictionary<string, object>();
+            var source = new Dictionary<string, object> { ["key"] = "value" };
             var adapter = new CustomAdapter(source, new Dictionary<string, Func<object>>());
 
             // Act
-            adapter["test"] = "value";
+            var result = adapter.Remove("key");
 
             // Assert
-            Assert.Equal("value", source["test"]);
+            Assert.True(result);
+            Assert.False(source.ContainsKey("key"));
         }
 
         [Fact]
-        public void Add_ShouldWork_ForNewKey()
+        public void Contains_ShouldReturnFalse_WhenKeyNotExists()
         {
             // Arrange
-            var source = new Dictionary<string, object>();
-            var adapter = new CustomAdapter(source, new Dictionary<string, Func<object>>());
+            var adapter = new CustomAdapter(
+                new Dictionary<string, object>(),
+                new Dictionary<string, Func<object>>());
+            var item = new KeyValuePair<string, object>("missing", "value");
 
             // Act
-            adapter.Add("newKey", "newValue");
-
-            // Assert
-            Assert.Equal("newValue", source["newKey"]);
-        }
-
-        [Fact]
-        public void Remove_ShouldReturnFalse_WhenKeyNotExists()
-        {
-            // Arrange
-            var source = new Dictionary<string, object>();
-            var adapter = new CustomAdapter(source, new Dictionary<string, Func<object>>());
-
-            // Act
-            var result = adapter.Remove("nonExisting");
+            var result = adapter.Contains(item);
 
             // Assert
             Assert.False(result);
         }
 
         [Fact]
-        public void Contains_ShouldReturnFalse_WhenValuesDiffer()
+        public void Contains_ShouldReturnTrue_ForBehaviorValue()
         {
             // Arrange
-            var source = new Dictionary<string, object> { ["key"] = "value1" };
-            var adapter = new CustomAdapter(source, new Dictionary<string, Func<object>>());
-            var item = new KeyValuePair<string, object>("key", "value2");
+            var behavior = new Dictionary<string, Func<object>> { ["behavior"] = () => "value" };
+            var adapter = new CustomAdapter(new Dictionary<string, object>(), behavior);
+            var item = new KeyValuePair<string, object>("behavior", "value");
+
+            // Act
+            var result = adapter.Contains(item);
+
+            // Assert
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void Contains_ShouldReturnFalse_WhenBehaviorValueDiffers()
+        {
+            // Arrange
+            var behavior = new Dictionary<string, Func<object>> { ["behavior"] = () => "value1" };
+            var adapter = new CustomAdapter(new Dictionary<string, object>(), behavior);
+            var item = new KeyValuePair<string, object>("behavior", "value2");
 
             // Act
             var result = adapter.Contains(item);
