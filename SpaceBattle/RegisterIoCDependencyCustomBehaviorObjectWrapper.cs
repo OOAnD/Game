@@ -1,4 +1,4 @@
-using App;
+﻿using App;
 
 namespace SpaceBattle
 {
@@ -6,9 +6,10 @@ namespace SpaceBattle
     {
         public void Execute()
         {
-            Ioc.Resolve<ICommand>("IoC.Register", "CustomBehaviorWrapper", (object[] args) => {
+            Ioc.Resolve<ICommand>("IoC.Register", "CustomBehaviorWrapper", (object[] args) =>
+            {
                 var obj = (IDictionary<string, object>)args[0];
-                var customBehavior = (IDictionary<string, Func<object>>) args[1];
+                var customBehavior = (IDictionary<string, Func<object>>)args[1];
                 return new DictionaryWrapper(obj, customBehavior);
             }).Execute();
         }

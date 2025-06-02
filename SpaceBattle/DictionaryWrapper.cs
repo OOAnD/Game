@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 
 public class DictionaryWrapper : IDictionary<string, object>
 {
