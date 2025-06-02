@@ -343,5 +343,62 @@ namespace SpaceBattle.Tests
             Assert.False(result);
             Assert.Null(value);
         }
+
+        [Fact]
+        public void SetValue_ShouldWork_ForNonBehaviorKey()
+        {
+            // Arrange
+            var source = new Dictionary<string, object>();
+            var adapter = new CustomAdapter(source, new Dictionary<string, Func<object>>());
+
+            // Act
+            adapter["test"] = "value";
+
+            // Assert
+            Assert.Equal("value", source["test"]);
+        }
+
+        [Fact]
+        public void Add_ShouldWork_ForNewKey()
+        {
+            // Arrange
+            var source = new Dictionary<string, object>();
+            var adapter = new CustomAdapter(source, new Dictionary<string, Func<object>>());
+
+            // Act
+            adapter.Add("newKey", "newValue");
+
+            // Assert
+            Assert.Equal("newValue", source["newKey"]);
+        }
+
+        [Fact]
+        public void Remove_ShouldReturnFalse_WhenKeyNotExists()
+        {
+            // Arrange
+            var source = new Dictionary<string, object>();
+            var adapter = new CustomAdapter(source, new Dictionary<string, Func<object>>());
+
+            // Act
+            var result = adapter.Remove("nonExisting");
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void Contains_ShouldReturnFalse_WhenValuesDiffer()
+        {
+            // Arrange
+            var source = new Dictionary<string, object> { ["key"] = "value1" };
+            var adapter = new CustomAdapter(source, new Dictionary<string, Func<object>>());
+            var item = new KeyValuePair<string, object>("key", "value2");
+
+            // Act
+            var result = adapter.Contains(item);
+
+            // Assert
+            Assert.False(result);
+        }
     }
 }
