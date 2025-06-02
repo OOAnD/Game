@@ -327,5 +327,21 @@ namespace SpaceBattle.Tests
             Assert.True(enumerator.MoveNext());
             Assert.False(enumerator.MoveNext());
         }
+
+        [Fact]
+        public void TryGetValue_ReturnsFalse_WhenKeyMissing()
+        {
+            // Arrange
+            var source = new Dictionary<string, object>();
+            var behaviors = new Dictionary<string, Func<object>>();
+            var adapter = new CustomAdapter(source, behaviors);
+
+            // Act
+            var result = adapter.TryGetValue("missing_key", out var value);
+
+            // Assert
+            Assert.False(result);
+            Assert.Null(value);
+        }
     }
 }
