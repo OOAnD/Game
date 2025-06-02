@@ -1,34 +1,30 @@
-﻿using App;
+using App;
 using App.Scopes;
 
 namespace SpaceBattle.Tests
 {
-    public class RegisterIoCDependencyAdapterStrategyTests
+    public class RegisterIoCDependencyCustomBehaviorWrapper
     {
         [Fact]
-        public void Execute_ShouldRegisterAdapterStrategy()
+        public void Execute_ShouldRegisterSatCollisionCheckerDependency()
         {
             // Arrange
             new InitCommand().Execute();
             var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
             Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
 
-            var sourceData = new Dictionary<string, object>();
-            var customBehaviors = new Dictionary<string, Func<object>>();
+            var obj = new Dictionary<string, object>();
+            var customBehavior = new Dictionary<string, Func<object>>();
 
-            var registrator = new RegisterIoCDependencyAdapterStrategyCommand();
+            var registrator = new RegisterIoCDependencyCustomBehaviorObjectWrapper();
 
             // Act
             registrator.Execute();
 
             // Assert
-            var adapter = Ioc.Resolve<IDictionary<string, object>>(
-                "Adapter.Strategy",
-                sourceData,
-                customBehaviors
-            );
+            var checker = Ioc.Resolve<IDictionary<string, object>>("CustomBehaviorWrapper", obj, customBehavior);
 
-            Assert.IsType<CustomAdapter>(adapter);
+            Assert.IsAssignableFrom<IDictionary<string, object>>(checker);
         }
     }
 }
