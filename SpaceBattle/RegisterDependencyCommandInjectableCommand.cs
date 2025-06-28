@@ -1,0 +1,16 @@
+﻿using App;
+
+namespace SpaceBattle
+{
+    public class RegisterDependencyCommandInjectableCommand : ICommand
+    {
+        public void Execute()
+        {
+            Ioc.Resolve<ICommand>(
+                "IoC.Register",
+                "Commands.CommadInjectable",
+                (object[] args) => new CommandInjectableCommand()
+            ).Execute();
+        }
+    }
+}
